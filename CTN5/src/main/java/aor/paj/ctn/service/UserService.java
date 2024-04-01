@@ -347,6 +347,22 @@ public class UserService {
         return response;
     }
 
+    //GET Users pelo tipo usando QueryParams
+    @GET
+    @Path("")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getUsersByTypeQuery(@HeaderParam("token") String token, @QueryParam("type") int typeOfUser) {
+        Response response;
+        if (userBean.isAuthenticated(token) && !userBean.userIsDeveloper(token)) {
+            List<User> users = userBean.getUsersByType(typeOfUser);
+            response = Response.status(200).entity(users).build();
+        } else {
+            response = Response.status(401).entity("You don't have permission").build();
+        }
+        return response;
+    }
+
+
     @GET
     @Path("/all/{type}/{visible}")
     @Produces(MediaType.APPLICATION_JSON)

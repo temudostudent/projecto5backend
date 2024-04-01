@@ -17,6 +17,10 @@ import java.util.Set;
 @NamedQuery(name = "User.findUserByPhone", query = "SELECT  u FROM UserEntity u WHERE u.phone = :phone AND u.username <> 'ADMIN'")
 @NamedQuery(name = "User.findUserByToken", query = "SELECT DISTINCT u FROM UserEntity u WHERE u.token = :token")
 @NamedQuery(name = "User.findUserByUsernameAndPassword", query = "SELECT u FROM UserEntity u WHERE u.username = :username AND u.password = :password")
+@NamedQuery(name = "User.countAllUsers", query = "SELECT COUNT(u) FROM UserEntity u")
+@NamedQuery(name = "User.countUsersByTypeOfUser", query = "SELECT COUNT(u) FROM UserEntity u WHERE u.typeOfUser = :typeOfUser")
+@NamedQuery(name = "User.countUsersByVisibility", query = "SELECT COUNT(u) FROM UserEntity u WHERE u.visible = :visible")
+
 public class UserEntity implements Serializable{
 
     private static final long serialVersionUID = 1L;

@@ -2,7 +2,9 @@ package aor.paj.ctn.dao;
 
 import aor.paj.ctn.entity.UserEntity;
 import jakarta.ejb.Stateless;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
+import jakarta.persistence.TypedQuery;
 
 import java.util.ArrayList;
 
@@ -101,6 +103,15 @@ public class UserDao extends AbstractDao<UserEntity> {
 		}
 	}
 
+	public static Long countUsersByTypeOfUser(EntityManager entityManager, int typeOfUser) {
+		try {
+			TypedQuery<Long> query = entityManager.createNamedQuery("User.countUsersByTypeOfUser", Long.class);
+			query.setParameter("typeOfUser", typeOfUser);
+			return query.getSingleResult();
+		} catch (Exception e) {
+			return null;
+		}
+	}
 
 
 }
