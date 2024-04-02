@@ -103,11 +103,25 @@ public class UserDao extends AbstractDao<UserEntity> {
 		}
 	}
 
-	public static Long countUsersByTypeOfUser(EntityManager entityManager, int typeOfUser) {
+	public Integer countAllUsers() {
 		try {
-			TypedQuery<Long> query = entityManager.createNamedQuery("User.countUsersByTypeOfUser", Long.class);
-			query.setParameter("typeOfUser", typeOfUser);
-			return query.getSingleResult();
+			return ((Number) em.createNamedQuery("User.countAllUsers").getSingleResult()).intValue();
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	public Integer countUsersByTypeOfUser(int typeOfUser) {
+		try {
+			return ((Number) em.createNamedQuery("User.countUsersByTypeOfUser").setParameter("typeOfUser", typeOfUser).getSingleResult()).intValue();
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	public Integer countUsersByVisibility(boolean visible) {
+		try {
+			return ((Number) em.createNamedQuery("User.countUsersByVisibility").setParameter("visible", visible).getSingleResult()).intValue();
 		} catch (Exception e) {
 			return null;
 		}

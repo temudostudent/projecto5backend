@@ -618,26 +618,6 @@ public class UserBean implements Serializable {
         return authorized;
     }
 
-/*    public boolean addTaskToUser(String username, Task temporaryTask) {
-        TaskBean taskBean = new TaskBean();
-        boolean done = taskBean.newTask(temporaryTask);
-        if (done) {
-            getUserAndHisTasks(username).add(temporaryTask);
-        }
-        return done;
-    }*/
-
-    /*public boolean updateTask(String username, Task task) {
-        TaskBean taskBean = new TaskBean();
-        boolean updated = false;
-
-        if (taskBean.editTask(task, getUserAndHisTasks(username))) {
-            //writeIntoJsonFile();
-            updated = true;
-        }
-        return updated;
-    }*/
-
     //Chamar método no Bean
 
 
@@ -694,6 +674,12 @@ public class UserBean implements Serializable {
             return true;
         }
         return false;
+    }
+
+    public int allUsers() {
+        int count = userDao.countAllUsers();
+        System.out.println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW   " + count);
+        return count;
     }
 
 }
