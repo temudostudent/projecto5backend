@@ -676,10 +676,4 @@ public class UserBean implements Serializable {
         return false;
     }
 
-    public int allUsers() {
-        int count = userDao.countAllUsers();
-        System.out.println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW   " + count);
-        return count;
-    }
-
 }

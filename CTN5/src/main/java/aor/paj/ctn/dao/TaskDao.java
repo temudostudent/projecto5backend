@@ -112,4 +112,31 @@ public class TaskDao extends AbstractDao<TaskEntity> {
 		return deleted;
 	}
 
+	public Integer countAllTasks() {
+		try {
+			return ((Number) em.createNamedQuery("Task.countAllTasks").getSingleResult()).intValue();
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	public Integer countTasksFromUser(UserEntity u) {
+		try {
+			return ((Number) em.createNamedQuery("Task.countAllTasksFromUser").setParameter("owner", u).getSingleResult()).intValue();
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	public Integer countAllTasksFromUserByState(UserEntity u, int stateId) {
+		try {
+			return ((Number) em.createNamedQuery("Task.countAllTasksFromUserByState").setParameter("owner", u).
+					setParameter("stateId", stateId).getSingleResult()).intValue();
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+
+
 }
