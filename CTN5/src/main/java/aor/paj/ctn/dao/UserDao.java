@@ -103,6 +103,8 @@ public class UserDao extends AbstractDao<UserEntity> {
 		}
 	}
 
+
+	//STATISTICS
 	public Integer countAllUsers() {
 		try {
 			return ((Number) em.createNamedQuery("User.countAllUsers").getSingleResult()).intValue();
