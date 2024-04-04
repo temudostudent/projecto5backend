@@ -3,6 +3,8 @@ package aor.paj.ctn.bean;
 import aor.paj.ctn.dao.UserDao;
 import aor.paj.ctn.dao.TaskDao;
 import aor.paj.ctn.dto.OverallStatistics;
+import aor.paj.ctn.dto.Task;
+import aor.paj.ctn.dto.User;
 import aor.paj.ctn.dto.UserStatistics;
 import aor.paj.ctn.entity.UserEntity;
 import jakarta.ejb.EJB;
@@ -27,42 +29,23 @@ public class StatisticsBean implements Serializable {
 
         if (count >= 0){
             s.setUsers(count);
-            countAllUsersByType(s);
+            s.setDevs(userDao.countUsersByTypeOfUser(User.DEVELOPER));
+            s.setScrumMasters(userDao.countUsersByTypeOfUser(User.SCRUMMASTER));
+            s.setProductOwners(userDao.countUsersByTypeOfUser(User.PRODUCTOWNER));
         }
-        return s;
-    }
-
-    private OverallStatistics countAllUsersByType(OverallStatistics s) {
-
-        int count;
-
-        for(int i=100;i<=300;i+=100){
-            count = userDao.countUsersByTypeOfUser(i);
-            if (i==100){
-                s.setDevs(count);
-            } else if (i==200) {
-                s.setScrumMasters(count);
-            } else if (i==300) {
-                s.setProductOwners(count);
-            }
-        }
-
         return s;
     }
 
     public OverallStatistics countUsersByType(int type) {
         OverallStatistics s = new OverallStatistics();
-        int count=userDao.countUsersByTypeOfUser(type);
 
-        if (count >= 0){
-            if (type==100){
-                s.setDevs(count);
-            } else if (type==200) {
-                s.setScrumMasters(count);
-            } else if (type==300) {
-                s.setProductOwners(count);
-            }
-        }
+        int countDevs = userDao.countUsersByTypeOfUser(User.DEVELOPER);
+        int countScrumMasters = userDao.countUsersByTypeOfUser(User.SCRUMMASTER);
+        int countProOwners = userDao.countUsersByTypeOfUser(User.PRODUCTOWNER);
+
+        s.setDevs(countDevs);
+        s.setScrumMasters(countScrumMasters);
+        s.setProductOwners(countProOwners);
 
         return s;
     }
@@ -79,22 +62,17 @@ public class StatisticsBean implements Serializable {
     }
 
     private OverallStatistics countAllTasksByState(OverallStatistics s) {
+        int countTodo = taskDao.countAllTasksByState(Task.TODO);
+        int countDoing = taskDao.countAllTasksByState(Task.DOING);
+        int countDone = taskDao.countAllTasksByState(Task.DONE);
 
-        int count;
-
-        for(int i=100;i<=300;i+=100){
-            count = taskDao.countAllTasksByState(i);
-                if (i==100){
-                    s.setToDo(count);
-                } else if (i==200) {
-                    s.setDoing(count);
-                } else if (i==300) {
-                    s.setDone(count);
-                }
-        }
+        s.setToDo(countTodo);
+        s.setDoing(countDoing);
+        s.setDone(countDone);
 
         return s;
     }
+
 
     public UserStatistics countAllTasksFromUser(String username) {
         UserEntity u = userDao.findUserByUsername(username);
@@ -111,18 +89,13 @@ public class StatisticsBean implements Serializable {
     //Conta todas as tarefas por estado e adiciona ao UserStatistics
     private UserStatistics countAllTasksFromUserByType(UserEntity u, UserStatistics s) {
 
-        int count;
+        int countTodo = taskDao.countAllTasksFromUserByState(u, Task.TODO);
+        int countDoing = taskDao.countAllTasksFromUserByState(u, Task.DOING);
+        int countDone = taskDao.countAllTasksFromUserByState(u, Task.DONE);
 
-        for(int i=100;i<=300;i+=100){
-            count = taskDao.countAllTasksFromUserByState(u, i);
-            if (i==100){
-                s.setToDo(count);
-            } else if (i==200) {
-                s.setDoing(count);
-            } else if (i==300) {
-                s.setDone(count);
-            }
-        }
+        s.setToDo(countTodo);
+        s.setDoing(countDoing);
+        s.setDone(countDone);
 
         return s;
     }

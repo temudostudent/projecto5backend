@@ -17,8 +17,8 @@ import java.util.Set;
 @NamedQuery(name = "User.findUserByPhone", query = "SELECT  u FROM UserEntity u WHERE u.phone = :phone AND u.username <> 'ADMIN'")
 @NamedQuery(name = "User.findUserByToken", query = "SELECT DISTINCT u FROM UserEntity u WHERE u.token = :token")
 @NamedQuery(name = "User.findUserByUsernameAndPassword", query = "SELECT u FROM UserEntity u WHERE u.username = :username AND u.password = :password")
-@NamedQuery(name = "User.countAllUsers", query = "SELECT COUNT(*) FROM UserEntity u WHERE u.username <> 'ADMIN' AND u.username <> 'deletedUser'")
-@NamedQuery(name = "User.countUsersByTypeOfUser", query = "SELECT COUNT(u) FROM UserEntity u WHERE u.typeOfUser = :typeOfUser AND u.username <> 'ADMIN'")
+@NamedQuery(name = "User.countAllUsers", query = "SELECT COUNT(*) FROM UserEntity u WHERE u.visible = true AND u.username <> 'ADMIN' AND u.username <> 'deletedUser'")
+@NamedQuery(name = "User.countUsersByTypeOfUser", query = "SELECT COUNT(u) FROM UserEntity u WHERE u.visible = true AND u.typeOfUser = :typeOfUser AND u.username <> 'ADMIN'")
 @NamedQuery(name = "User.countUsersByVisibility", query = "SELECT COUNT(u) FROM UserEntity u WHERE u.visible = :visible AND u.username <> 'ADMIN' AND u.username <> 'deletedUser'")
 
 public class UserEntity implements Serializable{
