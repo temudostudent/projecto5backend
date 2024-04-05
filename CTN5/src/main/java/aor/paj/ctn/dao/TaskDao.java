@@ -147,6 +147,14 @@ public class TaskDao extends AbstractDao<TaskEntity> {
 		}
 	}
 
+	public Double averageTasksPerUser() {
+		try {
+			return ((Number) em.createNamedQuery("Task.averageTasksPerUser").getSingleResult()).doubleValue();
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
 
 
 }

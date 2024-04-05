@@ -54,9 +54,13 @@ public class StatisticsBean implements Serializable {
         OverallStatistics s = new OverallStatistics();
         int count = taskDao.countAllTasks();
 
+        System.out.println("wwwwwwwwwwwwwwwwww " + taskDao.averageTasksPerUser());
+
         if (count >= 0){
             s.setTasks(count);
             countAllTasksByState(s);
+            s.setAvgTasksPerUser(taskDao.averageTasksPerUser());
+
         }
         return s;
     }
