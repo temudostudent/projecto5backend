@@ -50,6 +50,10 @@ public class TaskEntity implements Serializable{
     @Column (name="creation_date", nullable = false, unique = false, updatable = false)
     private Timestamp creationDate;
 
+    @CreationTimestamp
+    @Column (name="conclusion_date", nullable = false, unique = false, updatable = false)
+    private Timestamp conclusionDate;
+
     @Column (name="startDate", nullable = false, unique = false, updatable = true)
     private LocalDate startDate;
 
@@ -167,5 +171,13 @@ public class TaskEntity implements Serializable{
 
     public void setErased(boolean erased) {
         this.erased = erased;
+    }
+
+    public Timestamp getConclusionDate() {
+        return conclusionDate;
+    }
+
+    public void setConclusionDate(Timestamp conclusionDate) {
+        this.conclusionDate = conclusionDate;
     }
 }

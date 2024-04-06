@@ -30,7 +30,7 @@ public class UserEntity implements Serializable{
     @Column(name="username", nullable=false, unique = true, updatable = false)
     private String username;
 
-    @Column(name="password", nullable=false, unique = false, updatable = true)
+    @Column(name="password", nullable=true, unique = false, updatable = true)
     private String password;
 
     @Column(name="type_of_user", nullable=false, unique = false, updatable = true)
@@ -51,8 +51,11 @@ public class UserEntity implements Serializable{
     @Column(name="photo_url", nullable=true, unique = false, updatable = true)
     private String photoURL;
 
-    @Column(name="token", nullable=true, unique = true, updatable = true)
+    @Column(name="session_token", nullable=true, unique = true, updatable = true)
     private String token;
+
+    @Column(name="password_token", nullable=true, unique = true, updatable = true)
+    private String passToken;
 
     @Column(name="visible", nullable = false, unique = false, updatable = true)
     private boolean visible;
@@ -147,6 +150,14 @@ public class UserEntity implements Serializable{
     public boolean isVisible() {return visible;}
 
     public void setVisible(boolean visivel) {this.visible = visivel;}
+
+    public String getPassToken() {
+        return passToken;
+    }
+
+    public void setPassToken(String passToken) {
+        this.passToken = passToken;
+    }
 
     public void addNewTasks(ArrayList<TaskEntity> tasks){
         for(TaskEntity t: tasks)

@@ -5,7 +5,7 @@
              version="3.0">
   <persistence-unit name="PersistenceUnit">
     <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
-    <jta-data-source>java:/proj4DS</jta-data-source>
+    <jta-data-source>java:/proj5DS</jta-data-source>
     <properties>
       <property name="hibernate.hbm2ddl.auto" value="update" />
       <property name="hibernate.show_sql" value="false" />
