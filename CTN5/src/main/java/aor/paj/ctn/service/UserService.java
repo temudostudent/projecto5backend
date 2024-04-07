@@ -79,6 +79,31 @@ public class UserService {
         return response;
     }
 
+    /*@Path("/forgot-password")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public class ForgotPasswordEndpoint {
+
+        @POST
+        public Response forgotPassword(Email email) {
+            // Verificar se o e-mail está associado a um usuário
+            // Implemente sua lógica aqui
+
+            // Se o e-mail estiver associado a uma conta, você deve gerar um token de redefinição de senha
+            String emailAddress = email.getAddress();
+            //String resetToken = TokenService.generateToken(emailAddress);
+
+            // Agora, você deve enviar um e-mail para o endereço fornecido com o link para redefinição de senha
+            boolean emailSent = EmailService.sendResetPasswordEmail(emailAddress, resetToken);
+
+            if (emailSent) {
+                return Response.status(Response.Status.OK).entity("Um e-mail com as instruções para redefinir a senha foi enviado para " + emailAddress).build();
+            } else {
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("error").build();
+            }
+        }
+    }*/
+
     @GET
     @Path("/getFirstName")
     @Produces(MediaType.APPLICATION_JSON)
