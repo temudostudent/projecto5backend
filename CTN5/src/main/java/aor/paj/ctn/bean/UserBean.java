@@ -7,8 +7,11 @@ import aor.paj.ctn.dto.Task;
 import aor.paj.ctn.dto.User;
 import aor.paj.ctn.entity.TaskEntity;
 import aor.paj.ctn.entity.UserEntity;
+import aor.paj.ctn.service.EmailService;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
+import jakarta.mail.MessagingException;
 import org.mindrot.jbcrypt.BCrypt;
 import org.apache.logging.log4j.*;
 
@@ -20,6 +23,7 @@ import java.net.URL;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Date;
 
 @Stateless
 public class UserBean implements Serializable {
@@ -30,6 +34,9 @@ public class UserBean implements Serializable {
     private TaskDao taskDao;
     @EJB
     private CategoryBean categoryBean;
+
+    @Inject
+    private EmailService emailService;
 
     private static final Logger logger = LogManager.getLogger(UserBean.class);
 
@@ -135,6 +142,34 @@ public class UserBean implements Serializable {
             return true;
         } else
             return false;
+    }
+
+    public void sendPasswordResetEmail(String userEmail) {
+        // Verifica se o e-mail existe na base de dados
+        UserEntity userEntity = userDao.findUserByEmail(userEmail);
+        if (userEntity != null) {
+            // Gerar um token de redefinição de senha único
+            String resetToken = generateNewToken();
+
+            // Atualizar o token de redefinição de senha no banco de dados
+            userEntity.setResetToken(resetToken);
+            userEntity.setResetTokenExpiry(new Date(System.currentTimeMillis() + (24 * 60 * 60 * 1000))); // Token expira em 24 horas
+
+            // Persistir as alterações no banco de dados
+            userDao.merge(userEntity);
+
+            // Construir o URL para a página de redefinição de senha
+            String resetURL = "http://localhost:3000/reset-password?token=" + resetToken;
+
+            // Enviar e-mail com o link para redefinição de senha
+            try {
+                emailService.sendPasswordResetEmail(userEmail, userEntity.getUsername(), resetURL);
+            } catch (MessagingException e) {
+                logger.error(e);
+            }
+        } else {
+            // E-mail não encontrado na base de dados, lidar com isso conforme necessário
+        }
     }
 
 

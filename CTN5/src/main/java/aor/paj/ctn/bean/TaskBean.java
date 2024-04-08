@@ -34,8 +34,6 @@ public class TaskBean implements Serializable {
     private static final Logger logger = LogManager.getLogger(TaskBean.class);
 
 
-
-
     public boolean newTask(Task task, String token) {
         boolean created = false;
 

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Set;
 
 @Entity
@@ -54,11 +55,14 @@ public class UserEntity implements Serializable{
     @Column(name="session_token", nullable=true, unique = true, updatable = true)
     private String token;
 
-    @Column(name="password_token", nullable=true, unique = true, updatable = true)
-    private String passToken;
+    @Column(name="reset_token", nullable=true, unique = true, updatable = true)
+    private String resetToken;
 
     @Column(name="visible", nullable = false, unique = false, updatable = true)
     private boolean visible;
+
+    @Column(name = "reset_token_expiry", nullable = true)
+    private Date resetTokenExpiry;
 
     @OneToMany(mappedBy = "owner", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<TaskEntity> userTasks;
@@ -151,16 +155,25 @@ public class UserEntity implements Serializable{
 
     public void setVisible(boolean visivel) {this.visible = visivel;}
 
-    public String getPassToken() {
-        return passToken;
+    public String getResetToken() {
+        return resetToken;
     }
 
-    public void setPassToken(String passToken) {
-        this.passToken = passToken;
+    public void setResetToken(String resetToken) {
+        this.resetToken = resetToken;
     }
 
     public void addNewTasks(ArrayList<TaskEntity> tasks){
         for(TaskEntity t: tasks)
             userTasks.add(t);
+
+    }
+
+    public Date getResetTokenExpiry() {
+        return resetTokenExpiry;
+    }
+
+    public void setResetTokenExpiry(Date resetTokenExpiry) {
+        this.resetTokenExpiry = resetTokenExpiry;
     }
 }

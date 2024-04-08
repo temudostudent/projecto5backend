@@ -4,6 +4,7 @@ import aor.paj.ctn.websocket.Notifier;
 import jakarta.ejb.Schedule;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
+
 @Singleton
 public class TimerBean {
     @Inject
