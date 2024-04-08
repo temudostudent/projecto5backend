@@ -1,10 +1,8 @@
 package aor.paj.ctn.entity;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
 import java.time.LocalDate;
 
 @Entity
@@ -46,13 +44,11 @@ public class TaskEntity implements Serializable{
     @Column (name="priority", nullable = false, unique = false, updatable = true)
     private int priority;
 
-    @CreationTimestamp
     @Column (name="creation_date", nullable = false, unique = false, updatable = false)
-    private Timestamp creationDate;
+    private LocalDate creationDate;
 
-    @CreationTimestamp
-    @Column (name="conclusion_date", nullable = false, unique = false, updatable = false)
-    private Timestamp conclusionDate;
+    @Column (name="conclusion_date", nullable = true, unique = false, updatable = false)
+    private LocalDate conclusionDate;
 
     @Column (name="startDate", nullable = false, unique = false, updatable = true)
     private LocalDate startDate;
@@ -74,7 +70,7 @@ public class TaskEntity implements Serializable{
 
 
     public TaskEntity() {
-
+        this.creationDate= LocalDate.now();
     }
 
     public String getId()
@@ -87,12 +83,12 @@ public class TaskEntity implements Serializable{
         this.id = id;
     }
 
-    public Timestamp getCreationDate()
+    public LocalDate getCreationDate()
     {
         return creationDate;
     }
 
-    public void setCreationDate(Timestamp creationDate)
+    public void setCreationDate(LocalDate creationDate)
     {
         this.creationDate = creationDate;
     }
@@ -173,11 +169,11 @@ public class TaskEntity implements Serializable{
         this.erased = erased;
     }
 
-    public Timestamp getConclusionDate() {
+    public LocalDate getConclusionDate() {
         return conclusionDate;
     }
 
-    public void setConclusionDate(Timestamp conclusionDate) {
+    public void setConclusionDate(LocalDate conclusionDate) {
         this.conclusionDate = conclusionDate;
     }
 }

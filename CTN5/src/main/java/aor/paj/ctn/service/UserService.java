@@ -492,7 +492,7 @@ public class UserService {
                         response = Response.status(404).entity("Impossible to create task. Verify all fields").build();
                     }
                 } catch (Exception e) {
-                    response = Response.status(404).entity("Something went wrong. A new category was not created.").build();
+                    response = Response.status(404).entity("Something went wrong. A new task was not created.").build();
                 }
             } else {
                 response = Response.status(Response.Status.BAD_REQUEST).entity("Invalid username on path").build();

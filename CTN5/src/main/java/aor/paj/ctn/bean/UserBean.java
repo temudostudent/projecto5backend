@@ -10,6 +10,7 @@ import aor.paj.ctn.entity.UserEntity;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import org.mindrot.jbcrypt.BCrypt;
+import org.apache.logging.log4j.*;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -29,6 +30,8 @@ public class UserBean implements Serializable {
     private TaskDao taskDao;
     @EJB
     private CategoryBean categoryBean;
+
+    private static final Logger logger = LogManager.getLogger(UserBean.class);
 
 
     //Construtor vazio

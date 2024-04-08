@@ -9,6 +9,7 @@ import aor.paj.ctn.entity.TaskEntity;
 import aor.paj.ctn.entity.UserEntity;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
+import org.apache.logging.log4j.*;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -30,6 +31,8 @@ public class TaskBean implements Serializable {
     @EJB
     private TaskBean taskBean;
 
+    private static final Logger logger = LogManager.getLogger(TaskBean.class);
+
 
 
 
@@ -45,6 +48,13 @@ public class TaskBean implements Serializable {
             taskDao.persist(convertTaskToEntity(task));
             created = true;
 
+            logger.info("Task " + task.getTitle() + " is added successfully by "+ task.getOwner().getUsername());
+            // the following lines are added just to see the difference between different levels in Logger
+            logger.debug("Sample debug message");
+            logger.info("Sample info message");
+            logger.warn("Sample warn message");
+            logger.error("Sample error message");
+            logger.fatal("Sample fatal message");
         }
 
         return created;

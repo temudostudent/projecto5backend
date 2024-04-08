@@ -2,7 +2,7 @@ package aor.paj.ctn.entity;
 
 import jakarta.persistence.*;
 import java.io.Serializable;
-import java.sql.Timestamp;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "notification")
@@ -20,7 +20,7 @@ public class NotificationEntity implements Serializable {
     private UserEntity sender;
 
     @Column(name = "timestamp", nullable = false)
-    private Timestamp timestamp;
+    private LocalDate timestamp;
 
     @Column(name = "read_status", nullable = false)
     private boolean readStatus;
@@ -44,11 +44,11 @@ public class NotificationEntity implements Serializable {
         this.sender = sender;
     }
 
-    public Timestamp getTimestamp() {
+    public LocalDate getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(Timestamp timestamp) {
+    public void setTimestamp(LocalDate timestamp) {
         this.timestamp = timestamp;
     }
 
