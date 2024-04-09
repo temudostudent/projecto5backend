@@ -68,6 +68,7 @@ public class UserEntity implements Serializable{
     private Set<TaskEntity> userTasks;
 
 
+
     //default empty constructor
     public UserEntity() {}
 

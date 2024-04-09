@@ -4,7 +4,9 @@ import aor.paj.ctn.bean.CategoryBean;
 import aor.paj.ctn.bean.TaskBean;
 import aor.paj.ctn.bean.UserBean;
 import aor.paj.ctn.dto.*;
+import com.mysql.cj.x.protobuf.Mysqlx;
 import jakarta.inject.Inject;
+import jakarta.mail.MessagingException;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -80,15 +82,48 @@ public class UserService {
     }
 
     @POST
+    @Path("/register/pending")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response registerPendingUser(User user) {
+        Response response;
+
+        boolean isUsernameAvailable = userBean.isUsernameAvailable(user);
+        boolean isEmailValid = userBean.isEmailValid(user);
+        boolean isFieldEmpty = userBean.isAnyFieldEmpty(user);
+        boolean isPhoneNumberValid = userBean.isPhoneNumberValid(user);
+
+        if (isFieldEmpty) {
+            response = Response.status(422).entity("There's an empty field. ALl fields must be filled in").build();
+        } else if (!isEmailValid) {
+            response = Response.status(422).entity("Invalid email").build();
+        } else if (!isUsernameAvailable) {
+            response = Response.status(Response.Status.CONFLICT).entity("Username already in use").build(); //status code 409
+        } else if (!isPhoneNumberValid) {
+            response = Response.status(422).entity("Invalid phone number").build();
+        } else if (userBean.registerPending(user)) {
+            response = Response.status(Response.Status.CREATED).entity("User registered successfully").build(); //status code 201
+        } else {
+            response = Response.status(Response.Status.BAD_REQUEST).entity("Something went wrong").build(); //status code 400
+        }
+        return response;
+    }
+
+    @POST
     @Path("/forgot-password")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response resetPasswordRequest(@HeaderParam("email") String email) {
         try {
+            if (email == null || email.isEmpty()) {
+                return Response.status(Response.Status.BAD_REQUEST).entity("Email header is missing").build();
+            }
             // Chama o método no UserBean para enviar o e-mail de redefinição de senha
             userBean.sendPasswordResetEmail(email);
+            //userBean.sendEmail(email);
+
             // Retorna uma resposta de sucesso
-            return Response.ok("E-mail send to " + email).build();
+            return Response.status(Response.Status.OK).entity("E-mail send to " + email).build();
         } catch (Exception e) {
             // Se houver algum erro, retorna uma resposta de erro
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("error").build();

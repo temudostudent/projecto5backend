@@ -2,12 +2,13 @@ package aor.paj.ctn.bean;
 
 import aor.paj.ctn.dao.TaskDao;
 import aor.paj.ctn.dao.UserDao;
+import aor.paj.ctn.dto.AuthenticationLog;
 import aor.paj.ctn.dto.Login;
 import aor.paj.ctn.dto.Task;
 import aor.paj.ctn.dto.User;
+import aor.paj.ctn.entity.AuthenticationLogEntity;
 import aor.paj.ctn.entity.TaskEntity;
 import aor.paj.ctn.entity.UserEntity;
-import aor.paj.ctn.service.EmailService;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
@@ -21,6 +22,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
 import java.security.SecureRandom;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
@@ -99,7 +101,11 @@ public class UserBean implements Serializable {
             if (user.getUsername().equals("ADMIN") || user.getUsername().equals("deletedUser")){
                 user.setVisible(false);
             }else{
-                user.setInitialTypeOfUser();
+
+                if (user.getTypeOfUser() != User.SCRUMMASTER && user.getTypeOfUser() != User.PRODUCTOWNER) {
+
+                    user.setInitialTypeOfUser();
+                }
                 user.setVisible(true);
             }
 
@@ -109,7 +115,25 @@ public class UserBean implements Serializable {
             //Define a password encriptada
             user.setPassword(hashedPassword);
 
-            System.out.println(user);
+            //Persist o user
+            userDao.persist(convertUserDtotoUserEntity(user));
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    //Faz o registo pendente do utilizador, adiciona à base de dados
+    public boolean registerPending(User user) {
+
+        if (user != null) {
+
+            user.setVisible(true);
+
+            AuthenticationLog a= new AuthenticationLog();
+            a.setUser(user);
+            a.setAuthenticated(false);
+            a.setSendInviteTime(LocalDate.now());
 
             //Persist o user
             userDao.persist(convertUserDtotoUserEntity(user));
@@ -153,7 +177,7 @@ public class UserBean implements Serializable {
 
             // Atualizar o token de redefinição de senha no banco de dados
             userEntity.setResetToken(resetToken);
-            userEntity.setResetTokenExpiry(new Date(System.currentTimeMillis() + (24 * 60 * 60 * 1000))); // Token expira em 24 horas
+            userEntity.setResetTokenExpiry(new Date(System.currentTimeMillis() + (60 * 60 * 1000))); // Token expira em 1 hora
 
             // Persistir as alterações no banco de dados
             userDao.merge(userEntity);
@@ -168,9 +192,16 @@ public class UserBean implements Serializable {
                 logger.error(e);
             }
         } else {
-            // E-mail não encontrado na base de dados, lidar com isso conforme necessário
+            System.out.println(userEmail + " not registed and want to reset the password");
+            logger.warn(userEmail + " not registed and want to reset the password");
         }
     }
+
+    /*public void sendEmail(String toEmail) throws MessagingException {
+        String resetToken = generateNewToken();
+        String resetURL = "http://localhost:3000/reset-password?token=" + resetToken;
+        emailService.sendPasswordResetEmail(toEmail, "username", resetURL);
+    }*/
 
 
     //Métodos de conversão
@@ -483,7 +514,6 @@ public class UserBean implements Serializable {
         boolean status = false;
 
         if (user.getUsername().isEmpty() ||
-                user.getPassword().isEmpty() ||
                 user.getEmail().isEmpty() ||
                 user.getFirstName().isEmpty() ||
                 user.getLastName().isEmpty() ||

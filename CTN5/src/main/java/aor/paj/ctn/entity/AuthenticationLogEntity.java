@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "authentication_log")
@@ -24,8 +24,8 @@ public class AuthenticationLogEntity implements Serializable {
     private boolean authenticated;
 
     @CreationTimestamp
-    @Column(name = "authentication_time", nullable = false)
-    private Timestamp authenticationTime;
+    @Column(name = "invite_time", nullable = false)
+    private LocalDate sendInviteTime;
 
     public AuthenticationLogEntity() {
     }
@@ -46,11 +46,15 @@ public class AuthenticationLogEntity implements Serializable {
         this.authenticated = authenticated;
     }
 
-    public Timestamp getAuthenticationTime() {
-        return authenticationTime;
+    public LocalDate getAuthenticationTime() {
+        return sendInviteTime;
     }
 
-    public void setAuthenticationTime(Timestamp authenticationTime) {
-        this.authenticationTime = authenticationTime;
+    public LocalDate getSendInviteTime() {
+        return sendInviteTime;
+    }
+
+    public void setSendInviteTime(LocalDate sendInviteTime) {
+        this.sendInviteTime = sendInviteTime;
     }
 }
