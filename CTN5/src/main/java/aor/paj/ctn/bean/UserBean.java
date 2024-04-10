@@ -197,12 +197,6 @@ public class UserBean implements Serializable {
         }
     }
 
-    /*public void sendEmail(String toEmail) throws MessagingException {
-        String resetToken = generateNewToken();
-        String resetURL = "http://localhost:3000/reset-password?token=" + resetToken;
-        emailService.sendPasswordResetEmail(toEmail, "username", resetURL);
-    }*/
-
 
     //Métodos de conversão
 

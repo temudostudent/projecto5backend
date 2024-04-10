@@ -17,12 +17,12 @@ public class EmailService {
 
     private static final Logger logger = LogManager.getLogger(EmailService.class);
 
-    // Mailtrap SMTP credentials
-    private final String username = "ctn_dev@outlook.com";
-    private final String password = "ctndev2792";
+    // Mail SMTP credentials
+    private final String username = "cesardev00@gmail.com";
+    private final String password = "loqt hhig vbji ygql";
 
-    // Mailtrap SMTP host and port
-    private final String host = "smtp.office365.com";
+    // Mail SMTP host and port
+    private final String host = "smtp.gmail.com";
     private final String port = "587";
 
     @Resource(name = "mail/session")
@@ -47,13 +47,14 @@ public class EmailService {
     public void sendPasswordResetEmail(String toEmail, String username, String resetURL) throws MessagingException {
         String subject = "Password Reset Request";
         String body = "Hello " + username + ",<br><br>" +
-                "A request has been received to change the password for your Agileflow account. " +
+                "A request has been received to change the password for your Agileflow account. <br><br>" +
+                "Please click on the link. <br><br>" +
                 "<a href=\"" + resetURL + "\">Reset Password</a><br><br>" +
                 "Thank You,<br>" +
                 "The Agileflow Team";
 
-        sendEmail(toEmail, subject, body);
-        sendEmail("ctn_dev@outlook.com", subject, body);
+        //sendEmail(toEmail, subject, body);
+        sendEmail("cesardev00@gmail.com", subject, body);
     }
 
     public void sendAccountConfimationEmail(String toEmail, String username, String confirmURL) throws MessagingException {
@@ -65,8 +66,8 @@ public class EmailService {
                 "Thank You,<br>" +
                 "The Agileflow Team";
 
-        sendEmail(toEmail, subject, body);
-        sendEmail("ctn_dev@outlook.com", subject, body);
+        //sendEmail(toEmail, subject, body);
+        sendEmail("cesardev00@gmail.com", subject, body);
     }
 
 
