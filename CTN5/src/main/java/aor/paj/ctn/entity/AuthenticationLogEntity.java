@@ -5,6 +5,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.Date;
 
 @Entity
 @Table(name = "authentication_log")
@@ -22,6 +23,13 @@ public class AuthenticationLogEntity implements Serializable {
 
     @Column(name="authenticated", nullable = false, unique = false, updatable = true)
     private boolean authenticated;
+
+    @Column(name="confirm_token", nullable=true, unique = true, updatable = true)
+    private String confirmToken;
+
+    @Column(name = "confirm_token_expiry", nullable = true)
+    private Date confirmTokenExpiry;
+
 
     @CreationTimestamp
     @Column(name = "invite_time", nullable = false)
@@ -56,5 +64,21 @@ public class AuthenticationLogEntity implements Serializable {
 
     public void setSendInviteTime(LocalDate sendInviteTime) {
         this.sendInviteTime = sendInviteTime;
+    }
+
+    public String getConfirmToken() {
+        return confirmToken;
+    }
+
+    public void setConfirmToken(String confirmToken) {
+        this.confirmToken = confirmToken;
+    }
+
+    public Date getConfirmTokenExpiry() {
+        return confirmTokenExpiry;
+    }
+
+    public void setConfirmTokenExpiry(Date confirmTokenExpiry) {
+        this.confirmTokenExpiry = confirmTokenExpiry;
     }
 }

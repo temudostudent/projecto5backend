@@ -1,5 +1,6 @@
 package aor.paj.ctn.bean;
 
+import aor.paj.ctn.dao.AuthenticationLogDao;
 import aor.paj.ctn.dao.TaskDao;
 import aor.paj.ctn.dao.UserDao;
 import aor.paj.ctn.dto.AuthenticationLog;
@@ -13,8 +14,9 @@ import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
 import jakarta.mail.MessagingException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mindrot.jbcrypt.BCrypt;
-import org.apache.logging.log4j.*;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -34,6 +36,8 @@ public class UserBean implements Serializable {
     private UserDao userDao;
     @EJB
     private TaskDao taskDao;
+    @EJB
+    private AuthenticationLogDao authenticationLogDao;
     @EJB
     private CategoryBean categoryBean;
 
@@ -128,15 +132,31 @@ public class UserBean implements Serializable {
 
         if (user != null) {
 
-            user.setVisible(true);
+            user.setVisible(false);
 
-            AuthenticationLog a= new AuthenticationLog();
-            a.setUser(user);
+            AuthenticationLogEntity a= new AuthenticationLogEntity();
+
+            // Gerar um token de redefinição de senha único
+            String confirmToken = generateNewToken();
+
+            // Atualizar o token de redefinição de senha no banco de dados
+            a.setConfirmToken(confirmToken);
+            a.setConfirmTokenExpiry(new Date(System.currentTimeMillis() + (48 * 60 * 60 * 1000))); // Token expira em 48 horas
+
+            // Construir o URL para a página de redefinição de senha
+            String confirmURL = "http://localhost:3000/confirm-account?token=" + confirmToken;
+
+
+            a.setUser(convertUserDtotoUserEntity(user));
             a.setAuthenticated(false);
             a.setSendInviteTime(LocalDate.now());
 
             //Persist o user
             userDao.persist(convertUserDtotoUserEntity(user));
+            authenticationLogDao.persist(a);
+
+            sendConfirmAccountEmail(user.getEmail(), confirmURL);
+
             return true;
         } else {
             return false;
@@ -177,7 +197,7 @@ public class UserBean implements Serializable {
 
             // Atualizar o token de redefinição de senha no banco de dados
             userEntity.setResetToken(resetToken);
-            userEntity.setResetTokenExpiry(new Date(System.currentTimeMillis() + (60 * 60 * 1000))); // Token expira em 1 hora
+            userEntity.setResetTokenExpiry(new Date(System.currentTimeMillis() + (24 * 60 * 60 * 1000))); // Token expira em 24 horas
 
             // Persistir as alterações no banco de dados
             userDao.merge(userEntity);
@@ -194,6 +214,37 @@ public class UserBean implements Serializable {
         } else {
             System.out.println(userEmail + " not registed and want to reset the password");
             logger.warn(userEmail + " not registed and want to reset the password");
+        }
+    }
+
+    public void sendConfirmAccountEmail(String userEmail, String confirmURL) {
+        // Verifica se o e-mail existe na base de dados
+        UserEntity userEntity = userDao.findUserByEmail(userEmail);
+        if (userEntity != null) {
+
+            // Enviar e-mail com o link para redefinição de senha
+            try {
+                emailService.sendAccountConfimationEmail(userEmail, userEntity.getUsername(), confirmURL);
+            } catch (MessagingException e) {
+                logger.error(e);
+            }
+        } else {
+            System.out.println(userEmail + " not registed and want to reset the password");
+            logger.warn(userEmail + " not registed and want to reset the password");
+        }
+    }
+
+    public boolean isResetTokenValid(String resetToken) {
+        // Busca o user pelo token de redefinição de senha
+        UserEntity userEntity = userDao.findUserByResetToken(resetToken);
+
+        // Verifica se o usuário e o token existem e se o token não expirou
+        if (userEntity != null && userEntity.getResetToken().equals(resetToken) && userEntity.getResetTokenExpiry().after(new Date())) {
+            return true; // Token é válido
+        } else {
+            userEntity.setResetToken(null);
+            userEntity.setResetTokenExpiry(null);
+            return false; // Token não é válido
         }
     }
 
@@ -244,6 +295,15 @@ public class UserBean implements Serializable {
         t.setErased(taskEntity.getErased());
 
         return t;
+    }
+
+    public AuthenticationLogEntity convertAuthenticationLogDtotoAuthenticationLogEntity(AuthenticationLog a) {
+        AuthenticationLogEntity aEntity = new AuthenticationLogEntity();
+        aEntity.setAuthenticated(a.isAuthenticated());
+        aEntity.setUser(convertUserDtotoUserEntity(a.getUser()));
+        aEntity.setSendInviteTime(a.getSendInviteTime());
+
+        return aEntity;
     }
 
 
@@ -456,6 +516,29 @@ public class UserBean implements Serializable {
 
         return validUser;
     }
+
+    public boolean resetTokenIsAuth(String token) {
+
+        boolean validToken = false;
+        UserEntity user = userDao.findUserByResetToken(token);
+        if (user != null) {
+            validToken = true;
+        }
+
+        return validToken;
+    }
+
+    public boolean confirmTokenIsAuth(String token) {
+
+        boolean validToken = false;
+        UserEntity user = userDao.findUserByConfirmToken(token);
+        if (user != null) {
+            validToken = true;
+        }
+
+        return validToken;
+    }
+
 
     public boolean isUsernameAvailable(User user) {
 
@@ -695,6 +778,18 @@ public class UserBean implements Serializable {
 
     }
 
+    //Converte a Entidade com o token "token" para DTO
+    public User convertEntityByConfirmToken (String token){
+
+        UserEntity currentUserEntity = userDao.findUserByConfirmToken(token);
+        User currentUser = convertUserEntitytoUserDto(currentUserEntity);
+
+        if (currentUser != null){
+            return currentUser;
+        }else return null;
+
+    }
+
     //Converte a Entidade com o email "email" para DTO
     public User convertEntityByEmail (String email){
 
@@ -733,6 +828,23 @@ public class UserBean implements Serializable {
 
             //Define a password encriptada
             user.setPassword(hashedPassword);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean resetPassword(String token, String newPassword) {
+
+        UserEntity user = userDao.findUserByResetToken(token);
+        if (user != null) {
+            //Encripta a password usando BCrypt
+            String hashedPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
+
+            //Define a password encriptada
+            user.setPassword(hashedPassword);
+
+            user.setResetToken(null);
+            user.setResetTokenExpiry(null);
             return true;
         }
         return false;

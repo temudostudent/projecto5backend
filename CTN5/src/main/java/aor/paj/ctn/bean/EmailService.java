@@ -61,7 +61,7 @@ public class EmailService {
         String subject = "Agileflow Confirmation Request";
         String body = "Hello " + username + ",<br><br>" +
                 "It's time to verify your Agileflow account!<br><br>" +
-                "Just confirm your account and we're officially friends."+
+                "Just confirm your account and we're officially friends.<br><br>"+
                 "<a href=\"" + confirmURL + "\">Confirm your account</a><br><br>" +
                 "Thank You,<br>" +
                 "The Agileflow Team";

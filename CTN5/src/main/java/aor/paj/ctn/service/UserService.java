@@ -85,27 +85,33 @@ public class UserService {
     @Path("/register/pending")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response registerPendingUser(User user) {
+    public Response registerPendingUser(User user,
+                                        @HeaderParam("token") String token) {
         Response response;
 
-        boolean isUsernameAvailable = userBean.isUsernameAvailable(user);
-        boolean isEmailValid = userBean.isEmailValid(user);
-        boolean isFieldEmpty = userBean.isAnyFieldEmpty(user);
-        boolean isPhoneNumberValid = userBean.isPhoneNumberValid(user);
+        if(userBean.userIsProductOwner(token)){
+            boolean isUsernameAvailable = userBean.isUsernameAvailable(user);
+            boolean isEmailValid = userBean.isEmailValid(user);
+            boolean isFieldEmpty = userBean.isAnyFieldEmpty(user);
+            boolean isPhoneNumberValid = userBean.isPhoneNumberValid(user);
 
-        if (isFieldEmpty) {
-            response = Response.status(422).entity("There's an empty field. ALl fields must be filled in").build();
-        } else if (!isEmailValid) {
-            response = Response.status(422).entity("Invalid email").build();
-        } else if (!isUsernameAvailable) {
-            response = Response.status(Response.Status.CONFLICT).entity("Username already in use").build(); //status code 409
-        } else if (!isPhoneNumberValid) {
-            response = Response.status(422).entity("Invalid phone number").build();
-        } else if (userBean.registerPending(user)) {
-            response = Response.status(Response.Status.CREATED).entity("User registered successfully").build(); //status code 201
-        } else {
-            response = Response.status(Response.Status.BAD_REQUEST).entity("Something went wrong").build(); //status code 400
+            if (isFieldEmpty) {
+                response = Response.status(422).entity("There's an empty field. ALl fields must be filled in").build();
+            } else if (!isEmailValid) {
+                response = Response.status(422).entity("Invalid email").build();
+            } else if (!isUsernameAvailable) {
+                response = Response.status(Response.Status.CONFLICT).entity("Username already in use").build(); //status code 409
+            } else if (!isPhoneNumberValid) {
+                response = Response.status(422).entity("Invalid phone number").build();
+            } else if (userBean.registerPending(user)) {
+                response = Response.status(Response.Status.CREATED).entity("User registered successfully").build(); //status code 201
+            } else {
+                response = Response.status(Response.Status.BAD_REQUEST).entity("Something went wrong").build(); //status code 400
+            }
+        }else{
+            response = Response.status(Response.Status.BAD_REQUEST).entity("Invalid credentials").build();
         }
+
         return response;
     }
 
@@ -173,6 +179,23 @@ public class UserService {
         User currentUser = userBean.convertEntityByToken(token);
 
         if (!userBean.isAuthenticated(token)) {
+            response = Response.status(401).entity("Invalid credentials").build();
+        } else {
+            response = Response.status(200).entity(currentUser.getUsername()).build();
+        }
+        return response;
+    }
+
+    //Retorna username do token enviado
+    @GET
+    @Path("/getUsername/pending")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getUsernamePending(@HeaderParam("token") String token){
+        Response response;
+
+        User currentUser = userBean.convertEntityByConfirmToken(token);
+
+        if (!userBean.confirmTokenIsAuth(token)) {
             response = Response.status(401).entity("Invalid credentials").build();
         } else {
             response = Response.status(200).entity(currentUser.getUsername()).build();
@@ -274,6 +297,39 @@ public class UserService {
             }else return Response.status(200).entity("User password updated").build();
         }else
             return Response.status(401).entity("User is not logged in").build();
+    }
+
+    @PUT
+    @Path("/resetpassword")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response resetPassword(@HeaderParam("token") String token,
+                                  @HeaderParam("newPassword") String newPassword,
+                                  @HeaderParam("confirmPass") String confirmPassword){
+
+        // Verify if token is authenticated
+        if (userBean.resetTokenIsAuth(token) && userBean.isResetTokenValid(token)){
+            if (newPassword.equals(confirmPassword)){
+                // Reset password
+                boolean updated = userBean.resetPassword(token, newPassword);
+                if (!updated) {
+                    return Response.status(Response.Status.BAD_REQUEST)
+                            .entity("This token is not found")
+                            .build();
+                } else {
+                    return Response.status(Response.Status.OK)
+                            .entity("Password updated")
+                            .build();
+                }
+            } else {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("Passwords do not match")
+                        .build();
+            }
+        } else {
+            return Response.status(Response.Status.UNAUTHORIZED)
+                    .entity("Token does not exist or is invalid")
+                    .build();
+        }
     }
 
     @PUT

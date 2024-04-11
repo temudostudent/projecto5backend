@@ -2,9 +2,7 @@ package aor.paj.ctn.dao;
 
 import aor.paj.ctn.entity.UserEntity;
 import jakarta.ejb.Stateless;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
-import jakarta.persistence.TypedQuery;
 
 import java.util.ArrayList;
 
@@ -21,6 +19,26 @@ public class UserDao extends AbstractDao<UserEntity> {
 	public UserEntity findUserByToken(String token) {
 		try {
 			return (UserEntity) em.createNamedQuery("User.findUserByToken").setParameter("token", token)
+					.getSingleResult();
+
+		} catch (NoResultException e) {
+			return null;
+		}
+	}
+
+	public UserEntity findUserByConfirmToken(String token) {
+		try {
+			return (UserEntity) em.createNamedQuery("User.findUserByConfirmToken").setParameter("confirmToken", token)
+					.getSingleResult();
+
+		} catch (NoResultException e) {
+			return null;
+		}
+	}
+
+	public UserEntity findUserByResetToken(String token) {
+		try {
+			return (UserEntity) em.createNamedQuery("User.findUserByResetToken").setParameter("resetToken", token)
 					.getSingleResult();
 
 		} catch (NoResultException e) {
