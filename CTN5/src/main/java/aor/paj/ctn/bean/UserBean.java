@@ -234,18 +234,59 @@ public class UserBean implements Serializable {
         }
     }
 
+    //Verifica se o Reset Token é válido
     public boolean isResetTokenValid(String resetToken) {
         // Busca o user pelo token de redefinição de senha
         UserEntity userEntity = userDao.findUserByResetToken(resetToken);
 
-        // Verifica se o usuário e o token existem e se o token não expirou
-        if (userEntity != null && userEntity.getResetToken().equals(resetToken) && userEntity.getResetTokenExpiry().after(new Date())) {
-            return true; // Token é válido
+        // Verifica se o user existe
+        if (userEntity != null) {
+            // Verifica se o token não expirou
+            Date expiryDate = userEntity.getResetTokenExpiry();
+            if (expiryDate != null && expiryDate.after(new Date())) {
+                return true; // Token é válido
+            } else {
+                // Token expirou, limpa os campos de token e expiração
+                userEntity.setResetToken(null);
+                userEntity.setResetTokenExpiry(null);
+                return false;
+            }
         } else {
-            userEntity.setResetToken(null);
-            userEntity.setResetTokenExpiry(null);
-            return false; // Token não é válido
+            // User não encontrado
+            return false;
         }
+    }
+
+    //Verifica se o Confirmation Token é válido
+    public boolean isConfirmationTokenValid(String token) {
+
+        // Busca a info pelo token
+        AuthenticationLogEntity alEntity = authenticationLogDao.findALByToken(token);
+
+        // Verifica se a linha existe
+        if (alEntity != null) {
+            // Verifica se o token não expirou
+            Date expiryDate = alEntity.getConfirmTokenExpiry();
+            if (expiryDate != null && expiryDate.after(new Date())) {
+                return true; // Token é válido
+            } else {
+                // Token expirou, limpa os campos de token e expiração
+                alEntity.setConfirmToken(null);
+                alEntity.setConfirmTokenExpiry(null);
+                return false;
+            }
+        } else {
+            // Linha não encontrada
+            return false;
+        }
+
+        /*boolean validToken = false;
+        UserEntity user = userDao.findUserByConfirmToken(token);
+        if (user != null) {
+            validToken = true;
+        }
+
+        return validToken;*/
     }
 
 
@@ -527,18 +568,6 @@ public class UserBean implements Serializable {
 
         return validToken;
     }
-
-    public boolean confirmTokenIsAuth(String token) {
-
-        boolean validToken = false;
-        UserEntity user = userDao.findUserByConfirmToken(token);
-        if (user != null) {
-            validToken = true;
-        }
-
-        return validToken;
-    }
-
 
     public boolean isUsernameAvailable(User user) {
 

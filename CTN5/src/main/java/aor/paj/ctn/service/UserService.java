@@ -3,10 +3,11 @@ package aor.paj.ctn.service;
 import aor.paj.ctn.bean.CategoryBean;
 import aor.paj.ctn.bean.TaskBean;
 import aor.paj.ctn.bean.UserBean;
-import aor.paj.ctn.dto.*;
-import com.mysql.cj.x.protobuf.Mysqlx;
+import aor.paj.ctn.dto.Category;
+import aor.paj.ctn.dto.Login;
+import aor.paj.ctn.dto.Task;
+import aor.paj.ctn.dto.User;
 import jakarta.inject.Inject;
-import jakarta.mail.MessagingException;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -126,7 +127,6 @@ public class UserService {
             }
             // Chama o método no UserBean para enviar o e-mail de redefinição de senha
             userBean.sendPasswordResetEmail(email);
-            //userBean.sendEmail(email);
 
             // Retorna uma resposta de sucesso
             return Response.status(Response.Status.OK).entity("E-mail send to " + email).build();
@@ -188,14 +188,14 @@ public class UserService {
 
     //Retorna username do token enviado
     @GET
-    @Path("/getUsername/pending")
+    @Path("/username/pending")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUsernamePending(@HeaderParam("token") String token){
         Response response;
 
         User currentUser = userBean.convertEntityByConfirmToken(token);
 
-        if (!userBean.confirmTokenIsAuth(token)) {
+        if (!userBean.isConfirmationTokenValid(token)) {
             response = Response.status(401).entity("Invalid credentials").build();
         } else {
             response = Response.status(200).entity(currentUser.getUsername()).build();
