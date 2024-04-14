@@ -333,6 +333,39 @@ public class UserService {
     }
 
     @PUT
+    @Path("/set-first-password")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response setFirstPassword(@HeaderParam("token") String token,
+                                  @HeaderParam("newPassword") String newPassword,
+                                  @HeaderParam("confirmPass") String confirmPassword){
+
+        // Verify if token is authenticated
+        if (userBean.isConfirmationTokenValid(token)){
+            if (newPassword.equals(confirmPassword)){
+                // Set password
+                boolean updated = userBean.setFirstPassword(token, newPassword);
+                if (!updated) {
+                    return Response.status(Response.Status.BAD_REQUEST)
+                            .entity("This token is not found")
+                            .build();
+                } else {
+                    return Response.status(Response.Status.OK)
+                            .entity("Password set")
+                            .build();
+                }
+            } else {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("Passwords do not match")
+                        .build();
+            }
+        } else {
+            return Response.status(Response.Status.UNAUTHORIZED)
+                    .entity("Token does not exist or is invalid")
+                    .build();
+        }
+    }
+
+    @PUT
     @Path("/update/{username}/visibility")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)

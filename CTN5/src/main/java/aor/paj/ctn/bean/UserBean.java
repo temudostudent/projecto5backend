@@ -87,7 +87,8 @@ public class UserBean implements Serializable {
     //Permite ao utilizador entrar na app, gera token
     public String login(Login user) {
         UserEntity userEntity = userDao.findUserByUsername(user.getUsername());
-        if (userEntity != null && userEntity.isVisible()) {
+        //AuthenticationLogEntity al = authenticationLogDao.findALByUser(userEntity);
+        if (userEntity != null && userEntity.isVisible() /*&& al.isAuthenticated()*/) {
             //Verifica se a password coincide com a password encriptada
             if (BCrypt.checkpw(user.getPassword(), userEntity.getPassword())) {
                 String token = generateNewToken();
@@ -129,6 +130,9 @@ public class UserBean implements Serializable {
 
     //Faz o registo pendente do utilizador, adiciona à base de dados
     public boolean registerPending(User user) {
+
+        System.out.println(user);
+        System.out.println(user.getTypeOfUser());
 
         if (user != null) {
 
@@ -874,6 +878,27 @@ public class UserBean implements Serializable {
 
             user.setResetToken(null);
             user.setResetTokenExpiry(null);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean setFirstPassword(String token, String newPassword) {
+
+        UserEntity user = userDao.findUserByConfirmToken(token);
+        AuthenticationLogEntity al = authenticationLogDao.findALByToken(token);
+        if (user != null) {
+            //Encripta a password usando BCrypt
+            String hashedPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
+
+            //Define a password encriptada
+            user.setPassword(hashedPassword);
+
+            user.setVisible(true);
+            user.setConfirmDate(new Date());
+            al.setConfirmToken(null);
+            al.setConfirmTokenExpiry(null);
+            al.setAuthenticated(true);
             return true;
         }
         return false;

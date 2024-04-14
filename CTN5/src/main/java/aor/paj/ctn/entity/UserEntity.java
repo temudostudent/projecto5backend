@@ -66,7 +66,7 @@ public class UserEntity implements Serializable{
     @Column(name = "reset_token_expiry", nullable = true)
     private Date resetTokenExpiry;
 
-    @Column(name = "confirm_date", nullable = true, updatable = false)
+    @Column(name = "confirm_date", nullable = true)
     private Date confirmDate;
 
     @OneToMany(mappedBy = "owner", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
