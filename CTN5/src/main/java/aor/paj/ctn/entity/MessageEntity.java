@@ -6,6 +6,10 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "message")
+@NamedQuery(name = "Message.findAllMessages", query = "SELECT m FROM MessageEntity m")
+@NamedQuery(name = "Message.findMessagesBySender", query = "SELECT m FROM MessageEntity m WHERE m.sender = :sender")
+@NamedQuery(name = "Message.findMessagesByReceiver", query = "SELECT m FROM MessageEntity m WHERE m.recipient = :recipient")
+@NamedQuery(name = "Message.findMessagesByReadStatus", query = "SELECT m FROM MessageEntity m WHERE m.readStatus = :readStatus")
 public class MessageEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,6 +28,9 @@ public class MessageEntity implements Serializable {
 
     @Column(name = "timestamp", nullable = false)
     private LocalDate timestamp;
+
+    @Column(name = "read_timestamp", nullable = true)
+    private LocalDate readTimestamp;
 
     @Column(name = "read_status", nullable = false)
     private boolean readStatus;
@@ -69,5 +76,17 @@ public class MessageEntity implements Serializable {
 
     public void setReadStatus(boolean readStatus) {
         this.readStatus = readStatus;
+    }
+
+    public LocalDate getReadTimestamp() {
+        return readTimestamp;
+    }
+
+    public void setReadTimestamp(LocalDate readTimestamp) {
+        this.readTimestamp = readTimestamp;
+    }
+
+    public Long getId() {
+        return id;
     }
 }

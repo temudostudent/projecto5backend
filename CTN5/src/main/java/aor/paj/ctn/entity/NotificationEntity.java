@@ -22,6 +22,9 @@ public class NotificationEntity implements Serializable {
     @Column(name = "timestamp", nullable = false)
     private LocalDate timestamp;
 
+    @Column(name = "read_timestamp", nullable = true)
+    private LocalDate readTimestamp;
+
     @Column(name = "read_status", nullable = false)
     private boolean readStatus;
 
@@ -58,5 +61,17 @@ public class NotificationEntity implements Serializable {
 
     public void setReadStatus(boolean readStatus) {
         this.readStatus = readStatus;
+    }
+
+    public LocalDate getReadTimestamp() {
+        return readTimestamp;
+    }
+
+    public void setReadTimestamp(LocalDate readTimestamp) {
+        this.readTimestamp = readTimestamp;
+    }
+
+    public Long getId() {
+        return id;
     }
 }

@@ -65,6 +65,7 @@ public class UserBean implements Serializable {
             admin.setLastName("admin");
             admin.setPhone("000000001");
             admin.setTypeOfUser(300);
+            admin.setVisible(true);
 
             register(admin);
         }
@@ -103,14 +104,9 @@ public class UserBean implements Serializable {
     public boolean register(User user) {
 
         if (user != null) {
-            if (user.getUsername().equals("ADMIN") || user.getUsername().equals("deletedUser")){
+            if (user.getUsername().equals("deletedUser")){
                 user.setVisible(false);
             }else{
-
-                if (user.getTypeOfUser() != User.SCRUMMASTER && user.getTypeOfUser() != User.PRODUCTOWNER) {
-
-                    user.setInitialTypeOfUser();
-                }
                 user.setVisible(true);
             }
 

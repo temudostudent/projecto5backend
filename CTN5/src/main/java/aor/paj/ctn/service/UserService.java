@@ -933,4 +933,10 @@ public class UserService {
         return response;
     }
 
+    @POST
+    @Path("/session/reset")
+    public void resetSessionTimeout(@HeaderParam("token") String token) {
+        sessionManager.userActivity(token);
+    }
+
 }
