@@ -1,55 +1,45 @@
 package aor.paj.ctn.util;
-import java.util.HashMap;
+
+import aor.paj.ctn.bean.UserBean;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
+@ApplicationScoped
 public class SessionManager {
-    private static final long DEFAULT_TIMEOUT = 300000; // 5 minutos
-    private Map<String, Long> userLastActivity = new HashMap<>();
+    private ConcurrentHashMap<String, Long> userActivity;
     private long timeout;
+    private ScheduledExecutorService executorService;
+    private UserBean userBean;
 
-    public SessionManager(long timeout) {
-        this.timeout = timeout;
+    public SessionManager() {
+    }
+
+    @Inject
+    public SessionManager(UserBean userBean) {
+        this.userActivity = new ConcurrentHashMap<>();
+        this.timeout = 60000; // 5 minutes in milliseconds
+        this.userBean = userBean;
+        this.executorService = Executors.newSingleThreadScheduledExecutor();
+        this.executorService.scheduleAtFixedRate(this::checkInactiveUsers, timeout, timeout, TimeUnit.MILLISECONDS);
     }
 
     public void userActivity(String userId) {
-        userLastActivity.put(userId, System.currentTimeMillis());
+        userActivity.put(userId, System.currentTimeMillis());
     }
 
-    public void checkInactiveUsers() {
+    private void checkInactiveUsers() {
         long currentTime = System.currentTimeMillis();
-        for (String userId : userLastActivity.keySet()) {
-            long lastActivityTime = userLastActivity.get(userId);
-            if (currentTime - lastActivityTime > timeout) {
-                // Invalidar a sessão do usuário aqui
-                logoutUser(userId);
+        for (Map.Entry<String, Long> entry : userActivity.entrySet()) {
+            if (currentTime - entry.getValue() > timeout) {
+                userBean.logout(entry.getKey());
+                userActivity.remove(entry.getKey());
             }
         }
-    }
-
-    private void logoutUser(String userId) {
-
-
-        // Implemente a lógica de logout do user aqui!!!
-
-
-        System.out.println("User " + userId + " desconectado devido a inatividade.");
-        userLastActivity.remove(userId);
-    }
-
-    public static void main(String[] args) {
-        long timeout = readTimeoutFromConfig(); // Implemente a leitura do tempo de timeout a partir da configuração
-        SessionManager sessionManager = new SessionManager(timeout);
-
-        // Simulação de atividade de usuário
-        sessionManager.userActivity("user1");
-        sessionManager.userActivity("user2");
-
-        // Verificação de inatividade
-        sessionManager.checkInactiveUsers();
-    }
-
-    private static long readTimeoutFromConfig() {
-        // Implemente a leitura do timeout a partir da configuração
-        return DEFAULT_TIMEOUT;
     }
 }

@@ -7,6 +7,7 @@ import aor.paj.ctn.dto.Category;
 import aor.paj.ctn.dto.Login;
 import aor.paj.ctn.dto.Task;
 import aor.paj.ctn.dto.User;
+import aor.paj.ctn.util.SessionManager;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -25,6 +26,8 @@ public class UserService {
     TaskBean taskBean;
     @Inject
     CategoryBean categoryBean;
+    @Inject
+    SessionManager sessionManager;
 
 
     @POST
@@ -37,6 +40,7 @@ public class UserService {
         Response response;
 
         if (token != null) {
+            sessionManager.userActivity(token);
             response = Response.status(200).entity(token).build();
         } else {
             response = Response.status(401).entity("Invalid credentials").build();
@@ -918,8 +922,8 @@ public class UserService {
 
         if (userBean.isAuthenticated(token)) {
             try {
-                    List<Category> allCategories = categoryBean.findAllCategories();
-                    response = Response.status(200).entity(allCategories).build();
+                List<Category> allCategories = categoryBean.findAllCategories();
+                response = Response.status(200).entity(allCategories).build();
             } catch (Exception e) {
                 response = Response.status(404).entity("Something went wrong. The categories were not found.").build();
             }
@@ -928,7 +932,5 @@ public class UserService {
         }
         return response;
     }
-
-
 
 }
