@@ -1,6 +1,7 @@
 package aor.paj.ctn.service;
 
 import aor.paj.ctn.bean.MessageBean;
+import aor.paj.ctn.bean.NotificationBean;
 import aor.paj.ctn.bean.UserBean;
 import aor.paj.ctn.dto.Message;
 import jakarta.inject.Inject;
@@ -16,6 +17,8 @@ public class MessageService {
     @Inject
     MessageBean messageBean;
     @Inject
+    NotificationBean notificationBean;
+    @Inject
     UserBean userBean;
 
     @POST
@@ -29,6 +32,7 @@ public class MessageService {
 
         if (auth) {
             messageBean.sendMessage(message, token);
+            notificationBean.sendNotification(message.getReceiver(), token);
             response = Response.status(200).entity("Message sent successfully").build();
         } else {
             response = Response.status(401).entity("Invalid credentials").build();

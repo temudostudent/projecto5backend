@@ -1,8 +1,10 @@
 package aor.paj.ctn.service;
 
+import aor.paj.ctn.bean.NotificationBean;
 import aor.paj.ctn.bean.StatisticsBean;
 import aor.paj.ctn.bean.UserBean;
 import aor.paj.ctn.dto.OverallStatistics;
+import aor.paj.ctn.dto.User;
 import aor.paj.ctn.dto.UserStatistics;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -16,6 +18,8 @@ public class StatisticsService {
     UserBean userBean;
     @Inject
     StatisticsBean statsBean;
+    @Inject
+    NotificationBean notificationBean;
 
     @GET
     @Path("/users")
@@ -65,6 +69,25 @@ public class StatisticsService {
                 stat = statsBean.countAllTasksOvr();
             }
             response = Response.status(200).entity(stat).build();
+        }
+        return response;
+    }
+
+    @GET
+    @Path("/notifications")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response countUnreadNotifications(@HeaderParam("token") String token){
+        Response response;
+
+        if (!userBean.isAuthenticated(token)) {
+            response = Response.status(401).entity("Invalid credentials").build();
+        } else {
+            Integer notifications=0;
+            User user= userBean.convertEntityByToken(token);
+
+            notifications = notificationBean.countUnreadedNotifications(user);
+
+            response = Response.status(200).entity(notifications).build();
         }
         return response;
     }

@@ -6,6 +6,11 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "notification")
+@NamedQuery(name = "Notification.findAllNotifications", query = "SELECT n FROM NotificationEntity n")
+@NamedQuery(name = "Notification.findNotificationsByReceiver", query = "SELECT n FROM NotificationEntity n WHERE n.recipient = :recipient")
+@NamedQuery(name = "Notification.findNotificationsByReadStatus", query = "SELECT n FROM NotificationEntity n WHERE n.readStatus = :readStatus")
+@NamedQuery(name = "Notification.findUserNotificationsByReadStatus", query = "SELECT n FROM NotificationEntity n WHERE n.readStatus = :readStatus AND n.recipient = :recipient")
+@NamedQuery(name = "Notification.countUserNotificationsByReadStatus", query = "SELECT COUNT(n) FROM NotificationEntity n WHERE n.readStatus = :readStatus AND n.recipient = :recipient")
 public class NotificationEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
