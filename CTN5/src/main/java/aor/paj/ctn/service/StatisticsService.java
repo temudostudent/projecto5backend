@@ -74,7 +74,7 @@ public class StatisticsService {
     }
 
     @GET
-    @Path("/notifications")
+    @Path("/notifications/unreaded")
     @Produces(MediaType.APPLICATION_JSON)
     public Response countUnreadNotifications(@HeaderParam("token") String token){
         Response response;

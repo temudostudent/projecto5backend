@@ -10,7 +10,7 @@ public class TimerBean {
     @Inject
     Notifier notifier;
 
-    @Schedule(second="*/120", minute="*", hour="*") // this automatic timer is set to expire every 120 seconds
+    @Schedule(second="*/30", minute="*", hour="*") // this automatic timer is set to expire every 120 seconds
     public void automaticTimer(){
         String msg = "This is just a reminder!";
         System.out.println(msg);
