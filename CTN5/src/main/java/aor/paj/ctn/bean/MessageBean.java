@@ -11,7 +11,8 @@ import jakarta.ejb.Stateless;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,7 +37,7 @@ public class MessageBean {
         messageEntity.setSender(userBean.convertUserDtotoUserEntity(sender));
         messageEntity.setRecipient(userBean.convertUserDtotoUserEntity(to));
         messageEntity.setMessageContent(message.getContent());
-        messageEntity.setTimestamp(LocalDate.now());
+        messageEntity.setTimestamp(LocalDateTime.now());
         messageEntity.setReadStatus(false);
         messageDao.persist(messageEntity);
     }

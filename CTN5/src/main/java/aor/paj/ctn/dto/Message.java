@@ -3,7 +3,7 @@ package aor.paj.ctn.dto;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @XmlRootElement
 public class Message {
@@ -18,7 +18,7 @@ public class Message {
     @XmlElement
     private boolean readStatus;
     @XmlElement
-    private LocalDate timestamp;
+    private LocalDateTime timestamp;
 
     public Message() {
     }
@@ -67,11 +67,11 @@ public class Message {
         this.readStatus = readStatus;
     }
 
-    public LocalDate getTimestamp() {
+    public LocalDateTime getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(LocalDate timestamp) {
+    public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
     }
 }

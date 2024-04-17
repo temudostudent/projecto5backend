@@ -454,7 +454,7 @@ public class UserService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUsers(@HeaderParam("token") String token) {
         Response response;
-        if (userBean.isAuthenticated(token) && !userBean.userIsDeveloper(token)) {
+        if (userBean.isAuthenticated(token)) {
             List<User> allUsers = userBean.getUsers();
             response = Response.status(200).entity(allUsers).build();
         } else {
@@ -468,7 +468,7 @@ public class UserService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUsersByVisibility(@HeaderParam("token") String token, @PathParam("visible") boolean visible) {
         Response response;
-        if (userBean.isAuthenticated(token) && !userBean.userIsDeveloper(token)) {
+        if (userBean.isAuthenticated(token)) {
             List<User> users = userBean.getUsersByVisibility(visible);
             response = Response.status(200).entity(users).build();
         } else {
@@ -482,7 +482,7 @@ public class UserService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUsersByType(@HeaderParam("token") String token, @PathParam("type") int typeOfUser) {
         Response response;
-        if (userBean.isAuthenticated(token) && !userBean.userIsDeveloper(token)) {
+        if (userBean.isAuthenticated(token)) {
             List<User> users = userBean.getUsersByType(typeOfUser);
             response = Response.status(200).entity(users).build();
         } else {
@@ -497,7 +497,7 @@ public class UserService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUsersByTypeQuery(@HeaderParam("token") String token, @QueryParam("type") int typeOfUser) {
         Response response;
-        if (userBean.isAuthenticated(token) && !userBean.userIsDeveloper(token)) {
+        if (userBean.isAuthenticated(token)) {
             List<User> users = userBean.getUsersByType(typeOfUser);
             response = Response.status(200).entity(users).build();
         } else {
@@ -512,7 +512,7 @@ public class UserService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUsers(@HeaderParam("token") String token, @PathParam("type") int typeOfUser, @PathParam("visible") boolean visible) {
         Response response;
-        if (userBean.isAuthenticated(token) && !userBean.userIsDeveloper(token)) {
+        if (userBean.isAuthenticated(token)) {
             List<User> users = userBean.getUsersByTypeAndVisibility(typeOfUser,visible);
             response = Response.status(200).entity(users).build();
         } else {
@@ -543,7 +543,7 @@ public class UserService {
         }else {
             //Verifica se token existe de quem consulta
             if (userBean.isAuthenticated(token)) {
-                if (userBean.userIsScrumMaster(token) || userBean.userIsProductOwner(token)) {
+                if (userBean.userIsScrumMaster(token) || userBean.userIsProductOwner(token) || userBean.userIsDeveloper(token)) {
 
                     response = Response.ok().entity(userSearched).build();
                 } else {
@@ -581,7 +581,7 @@ public class UserService {
         Response response;
 
         if (userBean.isAuthenticated(token)) {
-            if (userBean.thisTokenIsFromThisUsername(token, username) || userBean.userIsProductOwner(token) || userBean.userIsScrumMaster(token)){
+            if (userBean.thisTokenIsFromThisUsername(token, username) || userBean.userIsProductOwner(token) || userBean.userIsScrumMaster(token) || userBean.userIsDeveloper(token)){
                 ArrayList<Task> userTasks = taskBean.getAllTasksFromUser(username, token);
                 userTasks.sort(Comparator.comparing(Task::getPriority, Comparator.reverseOrder()).thenComparing(Comparator.comparing(Task::getStartDate).thenComparing(Task::getLimitDate)));
                 response = Response.status(Response.Status.OK).entity(userTasks).build();
