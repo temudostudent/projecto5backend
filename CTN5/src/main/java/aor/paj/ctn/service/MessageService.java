@@ -4,6 +4,7 @@ import aor.paj.ctn.bean.MessageBean;
 import aor.paj.ctn.bean.NotificationBean;
 import aor.paj.ctn.bean.UserBean;
 import aor.paj.ctn.dto.Message;
+import aor.paj.ctn.dto.User;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -25,14 +26,21 @@ public class MessageService {
     @Path("/send")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response send(Message message, @HeaderParam("token") String token) {
+    public Response send(Message message, @HeaderParam("token") String token, @QueryParam("to") String to) {
 
         boolean auth = userBean.isAuthenticated(token);
+        User userTo = userBean.getUser(to);
+
         Response response;
 
         if (auth) {
-            messageBean.sendMessage(message, token);
-            notificationBean.sendNotification(message.getReceiver(), token);
+            // Check if the recipient user exists
+            if (userTo == null) {
+                return Response.status(404).entity("Recipient user does not exist").build();
+            }
+
+            messageBean.sendMessage(message, token, userTo);
+            notificationBean.sendNotification(userTo, token);
             response = Response.status(200).entity("Message sent successfully").build();
         } else {
             response = Response.status(401).entity("Invalid credentials").build();
@@ -54,7 +62,7 @@ public class MessageService {
         boolean auth = userBean.isAuthenticated(token);
 
         if (!auth) {
-            return Response.status(403).entity("Invalid credentials").build();
+            return Response.status(401).entity("Invalid credentials").build();
         }
 
         List<Message> messages = messageBean.getMessagesBetweenTwoUsers(username1, username2);

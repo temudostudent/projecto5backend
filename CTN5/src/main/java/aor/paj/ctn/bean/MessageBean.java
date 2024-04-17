@@ -26,7 +26,7 @@ public class MessageBean {
     @EJB
     private UserBean userBean;
 
-    public void sendMessage(Message message, String token) {
+    public void sendMessage(Message message, String token, User to) {
         User sender = userBean.convertEntityByToken(token);
         if (sender == null) {
             logger.error("Non existent token tried to send a message");
@@ -34,7 +34,7 @@ public class MessageBean {
         }
         MessageEntity messageEntity = new MessageEntity();
         messageEntity.setSender(userBean.convertUserDtotoUserEntity(sender));
-        messageEntity.setRecipient(userBean.convertUserDtotoUserEntity(message.getReceiver()));
+        messageEntity.setRecipient(userBean.convertUserDtotoUserEntity(to));
         messageEntity.setMessageContent(message.getContent());
         messageEntity.setTimestamp(LocalDate.now());
         messageEntity.setReadStatus(false);
