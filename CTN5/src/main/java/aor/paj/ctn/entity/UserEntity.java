@@ -17,6 +17,7 @@ import java.util.Set;
 @NamedQuery(name = "User.findUserByEmail", query = "SELECT u FROM UserEntity u WHERE u.email = :email AND u.username <> 'ADMIN'")
 @NamedQuery(name = "User.findUserByPhone", query = "SELECT  u FROM UserEntity u WHERE u.phone = :phone AND u.username <> 'ADMIN'")
 @NamedQuery(name = "User.findUserByToken", query = "SELECT DISTINCT u FROM UserEntity u WHERE u.token = :token")
+@NamedQuery(name = "User.findTokenByUsername", query = "SELECT u.token FROM UserEntity u WHERE u.username = :username")
 @NamedQuery(name = "User.findUserByResetToken", query = "SELECT DISTINCT u FROM UserEntity u WHERE u.resetToken = :resetToken")
 @NamedQuery(name = "User.findUserByUsernameAndPassword", query = "SELECT u FROM UserEntity u WHERE u.username = :username AND u.password = :password")
 @NamedQuery(name = "User.findUserByConfirmToken", query = "SELECT DISTINCT u FROM UserEntity u JOIN AuthenticationLogEntity al ON u.id = al.user.id WHERE al.confirmToken = :confirmToken")

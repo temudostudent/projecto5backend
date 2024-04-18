@@ -807,6 +807,14 @@ public class UserBean implements Serializable {
 
     }
 
+    public String findTokenByUsername (String username) {
+        String token = userDao.findTokenByUsername(username);
+        if (token != null) {
+            return token;
+        }
+        return null;
+    }
+
     //Converte a Entidade com o token "token" para DTO
     public User convertEntityByConfirmToken (String token){
 

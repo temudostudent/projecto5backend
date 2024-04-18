@@ -88,6 +88,15 @@ public class UserDao extends AbstractDao<UserEntity> {
 		}
 	}
 
+	public String findTokenByUsername(String username) {
+		try {
+			return (String) em.createNamedQuery("User.findTokenByUsername").setParameter("username", username)
+					.getSingleResult();
+		} catch (NoResultException e) {
+			return null;
+		}
+	}
+
 	public ArrayList<UserEntity> findAllUsers() {
 		try {
 			return (ArrayList<UserEntity>) em.createNamedQuery("User.findAllUsers").getResultList();

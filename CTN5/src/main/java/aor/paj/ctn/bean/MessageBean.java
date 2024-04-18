@@ -51,8 +51,6 @@ public class MessageBean {
                     .collect(Collectors.toList());
         }else
             return null;
-
-
     }
 
     public List<Message> getMessagesBetweenTwoUsers(String username1, String username2) {

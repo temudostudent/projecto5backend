@@ -1,5 +1,7 @@
 package aor.paj.ctn.websocket;
 
+import aor.paj.ctn.bean.NotificationBean;
+import jakarta.ejb.EJB;
 import jakarta.ejb.Singleton;
 import jakarta.websocket.*;
 import jakarta.websocket.server.PathParam;
@@ -10,6 +12,9 @@ import java.util.HashMap;
 @Singleton
 @ServerEndpoint("/websocket/notifier/{token}")
 public class Notifier {
+
+    @EJB
+    private NotificationBean notificationBean;
 
     HashMap<String, Session> sessions = new HashMap<String, Session>();
     public void send(String token, String msg) {
@@ -28,6 +33,7 @@ public class Notifier {
     public void toDoOnOpen (Session session, @PathParam("token") String token) {
         System.out.println("A new WebSocket session is opened for client with token: "+ token);
         sessions.put(token,session);
+        notificationBean.sendUnreadNotifications(token);
     }
 
     @OnClose
@@ -35,6 +41,7 @@ public class Notifier {
         System.out.println("Websocket session is closed with CloseCode: "+ reason.getCloseCode() + ": "+reason.getReasonPhrase());
         for(String key:sessions.keySet()){
             if(sessions.get(key) == session)
+                System.out.println(key + " is removed from the session list");
                 sessions.remove(key);
         }
     }
