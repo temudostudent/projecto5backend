@@ -33,7 +33,6 @@ public class Notifier {
     public void toDoOnOpen (Session session, @PathParam("token") String token) {
         System.out.println("A new WebSocket session is opened for client with token: "+ token);
         sessions.put(token,session);
-        notificationBean.sendUnreadNotifications(token);
     }
 
     @OnClose
@@ -53,5 +52,10 @@ public class Notifier {
         } catch (IOException e) {
             System.out.println("Something went wrong!");
         }
+    }
+
+    public boolean isSessionOpen(String token) {
+        Session session = sessions.get(token);
+        return session != null && session.isOpen();
     }
 }

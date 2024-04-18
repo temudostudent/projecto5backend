@@ -9,7 +9,6 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import java.util.List;
-import java.util.Map;
 
 @Path("/notification")
 public class NotificationService {
@@ -32,7 +31,7 @@ public class NotificationService {
         if (auth) {
             if (status == false) {
                 // Get all unread notifications
-                Map<String, String> notifications = notificationBean.getUnreadNotificationsByTypeForUser(username);
+                List<Notification> notifications = notificationBean.findNotificationsUnreadedByReceiver(username);
                 response = Response.status(200).entity(notifications).build();
             } else if (status == true) {
                 // Get notifications readed

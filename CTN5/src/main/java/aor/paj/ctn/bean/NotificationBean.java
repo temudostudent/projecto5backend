@@ -29,7 +29,7 @@ public class NotificationBean {
     @Inject
     Notifier notifier;
 
-    public void sendNotification(User receiver, String token) {
+    public void sendNotification(User receiver, String token, String type) {
 
         User sender = userBean.convertEntityByToken(token);
         if (sender == null) {
@@ -40,12 +40,13 @@ public class NotificationBean {
         notificationEntity.setRecipient(userBean.convertUserDtotoUserEntity(receiver));
         notificationEntity.setTimestamp(LocalDateTime.now());
         notificationEntity.setReadStatus(false);
+        notificationEntity.setType(type);
         notificationDao.persist(notificationEntity);
 
         String receiverToken = userBean.findTokenByUsername(receiver.getUsername());
 
-        //send the notification to the receiver
-        if (receiverToken!=null){
+        // Check if the receiver's WebSocket session is open before sending the notification
+        if (receiverToken != null && notifier.isSessionOpen(receiverToken)) {
             notifier.send(receiverToken, sender.getUsername() + " sent you a new message");
         }
     }
@@ -54,7 +55,7 @@ public class NotificationBean {
         return notificationDao.countUserNotificationsUnreaded(userBean.convertUserDtotoUserEntity(recipient));
     }
 
-    public void sendUnreadNotifications(String token) {
+    /*public void sendUnreadNotifications(String token) {
         User user = userBean.convertEntityByToken(token);
         if (user == null) {
             throw new RuntimeException("Invalid token");
@@ -71,7 +72,7 @@ public class NotificationBean {
                 throw new RuntimeException("Error sending notification", e);
             }
         }
-    }
+    }*/
 
     private Notification convertToDto(NotificationEntity notificationEntity) {
         Notification notification = new Notification();
