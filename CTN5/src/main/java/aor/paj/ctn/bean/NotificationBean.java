@@ -1,22 +1,16 @@
 package aor.paj.ctn.bean;
 
 import aor.paj.ctn.dao.NotificationDao;
-import aor.paj.ctn.dto.Message;
 import aor.paj.ctn.dto.Notification;
 import aor.paj.ctn.dto.User;
 import aor.paj.ctn.entity.NotificationEntity;
-import aor.paj.ctn.entity.UserEntity;
 import aor.paj.ctn.websocket.Notifier;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Stateless
@@ -81,13 +75,14 @@ public class NotificationBean {
         notification.setReceiver(userBean.convertUserEntitytoUserDto(notificationEntity.getRecipient()));
         notification.setReadStatus(notificationEntity.isReadStatus());
         notification.setTimestamp(notificationEntity.getTimestamp());
+        notification.setType(notificationEntity.getType());
         return notification;
     }
 
     public List<Notification> findNotificationsUnreadedByReceiver(String username) {
 
         if (username != null) {
-            return notificationDao.findNotificationsUnreadedByReceiver(username).stream()
+            return notificationDao.findNotificationsUnreadedByReceiver(false, username).stream()
                     .map(this::convertToDto)
                     .collect(Collectors.toList());
         } else {
@@ -95,24 +90,22 @@ public class NotificationBean {
         }
     }
 
-    public Map<String, String> getUnreadNotificationsByTypeForUser(String username) {
-        try {
-            List<Notification> notifications = findNotificationsUnreadedByReceiver(username);
-            if (notifications != null) {
-                return notifications.stream()
-                        .filter(notification -> notification != null && notification.getSender() != null)
-                        .collect(Collectors.toMap(
-                                notification -> notification.getSender().getUsername(), // Key is sender's username
-                                Notification::getType, // Value is notification type
-                                (existingValue, newValue) -> existingValue + ", " + newValue)); // If there are multiple notifications from the same sender, concatenate the types
-            } else {
-                return null;
-            }
-        } catch (Exception e) {
-            // Log the exception here
-            System.err.println("Error in getUnreadNotificationsByTypeForUser: " + e.getMessage());
-            e.printStackTrace();
+    public List<Notification> findAllNotificationsByReceiver(String username) {
+
+        if (username != null) {
+            return notificationDao.findAllNotificationsByReceiver(username).stream()
+                    .map(this::convertToDto)
+                    .collect(Collectors.toList());
+        } else {
             return null;
+        }
+    }
+
+    public void setAllNotificationsFromUserToReaded(String username) {
+        List<NotificationEntity> unreadNotifications = notificationDao.findNotificationsUnreadedByReceiver(false, username);
+        for (NotificationEntity notification : unreadNotifications) {
+            notification.setReadStatus(true);
+            notificationDao.merge(notification);
         }
     }
 }
