@@ -3,10 +3,13 @@ package aor.paj.ctn.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Produces;
 import jakarta.ws.rs.ext.ContextResolver;
 import jakarta.ws.rs.ext.Provider;
 
 @Provider
+@ApplicationScoped
 public class ObjectMapperContextResolver implements ContextResolver<ObjectMapper> {
 
     private final ObjectMapper mapper;
@@ -19,6 +22,11 @@ public class ObjectMapperContextResolver implements ContextResolver<ObjectMapper
 
     @Override
     public ObjectMapper getContext(Class<?> type) {
+        return mapper;
+    }
+
+    @Produces
+    public ObjectMapper produceObjectMapper() {
         return mapper;
     }
 }

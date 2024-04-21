@@ -5,6 +5,7 @@ import aor.paj.ctn.dto.Notification;
 import aor.paj.ctn.dto.User;
 import aor.paj.ctn.entity.NotificationEntity;
 import aor.paj.ctn.websocket.Notifier;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
@@ -22,6 +23,8 @@ public class NotificationBean {
     private UserBean userBean;
     @Inject
     Notifier notifier;
+    @Inject
+    ObjectMapper objectMapper;
 
     public void sendNotification(User receiver, String token, String type) {
 
@@ -41,7 +44,26 @@ public class NotificationBean {
 
         // Check if the receiver's WebSocket session is open before sending the notification
         if (receiverToken != null && notifier.isSessionOpen(receiverToken)) {
-            notifier.send(receiverToken, sender.getUsername() + " sent you a new message");
+            // Create a new Notification DTO
+            Notification notification = new Notification();
+            notification.setSender(sender);
+            notification.setTimestamp(notificationEntity.getTimestamp());
+
+            // Convert the Notification DTO to a JSON string
+
+            String notificationJson;
+            try {
+                if (notification != null) {
+                    notificationJson = objectMapper.writeValueAsString(notification);
+                    System.out.println(notificationJson);
+                } else {
+                    throw new RuntimeException("Notification is null");
+                }
+            } catch (Exception e) {
+                throw new RuntimeException("Error converting notification to JSON", e);
+            }
+
+            notifier.send(receiverToken, notificationJson);
         }
     }
 

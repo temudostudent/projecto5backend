@@ -29,6 +29,7 @@ public class Notifier {
         }
     }
 
+
     @OnOpen
     public void toDoOnOpen (Session session, @PathParam("token") String token) {
         System.out.println("A new WebSocket session is opened for client with token: "+ token);
