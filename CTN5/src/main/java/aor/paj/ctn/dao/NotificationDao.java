@@ -27,7 +27,7 @@ public class NotificationDao extends AbstractDao<NotificationEntity>{
         }
     }
 
-    public ArrayList<NotificationEntity> findNotificationsUnreadedByReceiver(Boolean readStatus, String username) {
+    public ArrayList<NotificationEntity> findNotificationsFromReadStatusByReceiver(Boolean readStatus, String username) {
         try {
             return (ArrayList<NotificationEntity>) em.createNamedQuery("Notification.findUserNotificationsByReadStatus")
                     .setParameter("readStatus", readStatus)
@@ -45,6 +45,19 @@ public class NotificationDao extends AbstractDao<NotificationEntity>{
                     .setParameter("readStatus", false)
                     .setParameter("recipient", recipient)
                     .getSingleResult()).intValue();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public ArrayList<NotificationEntity> findNotificationsBySenderAndReceiver(Boolean readStatus, String senderUsername, String receiverUsername) {
+        try {
+            return (ArrayList<NotificationEntity>) em.createNamedQuery("Notification.findNotificationsBySenderAndReceiver")
+                    .setParameter("readStatus", readStatus)
+                    .setParameter("senderUsername", senderUsername)
+                    .setParameter("receiverUsername", receiverUsername)
+                    .getResultList();
+
         } catch (Exception e) {
             return null;
         }

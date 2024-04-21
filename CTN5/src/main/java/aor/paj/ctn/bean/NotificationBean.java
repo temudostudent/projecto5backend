@@ -71,25 +71,6 @@ public class NotificationBean {
         return notificationDao.countUserNotificationsUnreaded(userBean.convertUserDtotoUserEntity(recipient));
     }
 
-    /*public void sendUnreadNotifications(String token) {
-        User user = userBean.convertEntityByToken(token);
-        if (user == null) {
-            throw new RuntimeException("Invalid token");
-        }
-        List<NotificationEntity> unreadNotifications = notificationDao.findNotificationsUnreadedByReceiver(userBean.convertUserDtotoUserEntity(user).getUsername());
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-        for (NotificationEntity notificationEntity : unreadNotifications) {
-            Notification notification = convertToDto(notificationEntity);
-            try {
-                String notificationJson = mapper.writeValueAsString(notification);
-                notifier.send(token, notificationJson);
-            } catch (Exception e) {
-                throw new RuntimeException("Error sending notification", e);
-            }
-        }
-    }*/
-
     private Notification convertToDto(NotificationEntity notificationEntity) {
         Notification notification = new Notification();
         notification.setId(notificationEntity.getId().toString());
@@ -104,7 +85,7 @@ public class NotificationBean {
     public List<Notification> findNotificationsUnreadedByReceiver(String username) {
 
         if (username != null) {
-            return notificationDao.findNotificationsUnreadedByReceiver(false, username).stream()
+            return notificationDao.findNotificationsFromReadStatusByReceiver(false, username).stream()
                     .map(this::convertToDto)
                     .collect(Collectors.toList());
         } else {
@@ -124,7 +105,15 @@ public class NotificationBean {
     }
 
     public void setAllNotificationsFromUserToReaded(String username) {
-        List<NotificationEntity> unreadNotifications = notificationDao.findNotificationsUnreadedByReceiver(false, username);
+        List<NotificationEntity> unreadNotifications = notificationDao.findNotificationsFromReadStatusByReceiver(false, username);
+        for (NotificationEntity notification : unreadNotifications) {
+            notification.setReadStatus(true);
+            notificationDao.merge(notification);
+        }
+    }
+
+    public void setNotificationsFromSenderToReceiverReaded(String senderUsername, String receiverUsername) {
+        List<NotificationEntity> unreadNotifications = notificationDao.findNotificationsBySenderAndReceiver(false, senderUsername, receiverUsername);
         for (NotificationEntity notification : unreadNotifications) {
             notification.setReadStatus(true);
             notificationDao.merge(notification);

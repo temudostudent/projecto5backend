@@ -87,4 +87,20 @@ public class NotificationService {
         }
         return response;
     }
+
+    @PUT
+    @Path("/read/{senderUsername}/{receiverUsername}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response markAllFromSenderToReceiverAsRead(@HeaderParam("token") String token, @PathParam("senderUsername") String senderUsername, @PathParam("receiverUsername") String receiverUsername) {
+        boolean auth = userBean.isAuthenticated(token);
+        Response response = null;
+
+        if (auth) {
+            notificationBean.setNotificationsFromSenderToReceiverReaded(senderUsername, receiverUsername);
+            response = Response.status(200).entity("All notifications from sender to receiver marked as read").build();
+        } else {
+            response = Response.status(401).entity("Invalid credentials").build();
+        }
+        return response;
+    }
 }
