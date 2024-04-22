@@ -55,7 +55,6 @@ public class NotificationBean {
             try {
                 if (notification != null) {
                     notificationJson = objectMapper.writeValueAsString(notification);
-                    System.out.println(notificationJson);
                 } else {
                     throw new RuntimeException("Notification is null");
                 }
@@ -97,6 +96,17 @@ public class NotificationBean {
 
         if (username != null) {
             return notificationDao.findAllNotificationsByReceiver(username).stream()
+                    .map(this::convertToDto)
+                    .collect(Collectors.toList());
+        } else {
+            return null;
+        }
+    }
+
+    public List<Notification> findLatestNotificationsByReceiver(String username) {
+
+        if (username != null) {
+            return notificationDao.findLatestNotificationFromEachSenderByReceiver(username).stream()
                     .map(this::convertToDto)
                     .collect(Collectors.toList());
         } else {

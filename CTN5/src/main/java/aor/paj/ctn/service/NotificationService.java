@@ -51,7 +51,7 @@ public class NotificationService {
     @GET
     @Path("/{username}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response receive(@HeaderParam("token") String token,
+    public Response getAllUserNotifications(@HeaderParam("token") String token,
                             @PathParam("username") String username) {
 
         boolean auth = userBean.isAuthenticated(token);
@@ -62,6 +62,29 @@ public class NotificationService {
             if (usernameToken.equals(username)) {
                 // Get all notifications
                 List<Notification> notifications = notificationBean.findAllNotificationsByReceiver(username);
+                response = Response.status(200).entity(notifications).build();
+            }
+
+        } else {
+            response = Response.status(401).entity("Invalid credentials").build();
+        }
+        return response;
+    }
+
+    @GET
+    @Path("/{username}/latest")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getLatestUserNotifications(@HeaderParam("token") String token,
+                                            @PathParam("username") String username) {
+
+        boolean auth = userBean.isAuthenticated(token);
+        String usernameToken = userBean.convertEntityByToken(token).getUsername();
+        Response response = null;
+
+        if (auth) {
+            if (usernameToken.equals(username)) {
+                // Get all notifications
+                List<Notification> notifications = notificationBean.findLatestNotificationsByReceiver(username);
                 response = Response.status(200).entity(notifications).build();
             }
 

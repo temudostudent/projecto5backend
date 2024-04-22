@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @NamedQuery(name = "Notification.findNotificationsByReceiver", query = "SELECT n FROM NotificationEntity n WHERE n.recipient.username = :username")
 @NamedQuery(name = "Notification.findNotificationsByReadStatus", query = "SELECT n FROM NotificationEntity n WHERE n.readStatus = :readStatus")
 @NamedQuery(name = "Notification.findUserNotificationsByReadStatus", query = "SELECT n FROM NotificationEntity n WHERE n.readStatus = :readStatus AND n.recipient.username = :username ORDER BY n.timestamp DESC")
+@NamedQuery(name = "Notification.findLatestFromEachSenderByReceiver", query = "SELECT n FROM NotificationEntity n WHERE n.recipient.username = :receiverUsername AND n.timestamp = (SELECT MAX(n2.timestamp) FROM NotificationEntity n2 WHERE n2.sender.username = n.sender.username AND n2.recipient.username = :receiverUsername) ORDER BY n.timestamp DESC")
 @NamedQuery(name = "Notification.findNotificationsBySenderAndReceiver", query = "SELECT n FROM NotificationEntity n WHERE n.readStatus = :readStatus AND n.sender.username = :senderUsername AND n.recipient.username = :receiverUsername")
 @NamedQuery(name = "Notification.countUserNotificationsByReadStatus", query = "SELECT COUNT(n) FROM NotificationEntity n WHERE n.readStatus = :readStatus AND n.recipient = :recipient")
 public class NotificationEntity implements Serializable {

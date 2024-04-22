@@ -62,4 +62,14 @@ public class NotificationDao extends AbstractDao<NotificationEntity>{
             return null;
         }
     }
+
+    public ArrayList<NotificationEntity> findLatestNotificationFromEachSenderByReceiver(String receiverUsername) {
+        try {
+            return (ArrayList<NotificationEntity>) em.createNamedQuery("Notification.findLatestFromEachSenderByReceiver")
+                    .setParameter("receiverUsername", receiverUsername)
+                    .getResultList();
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

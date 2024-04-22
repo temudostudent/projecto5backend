@@ -3,11 +3,16 @@ package aor.paj.ctn.bean;
 import aor.paj.ctn.dao.MessageDao;
 import aor.paj.ctn.dao.UserDao;
 import aor.paj.ctn.dto.Message;
+import aor.paj.ctn.dto.Notification;
 import aor.paj.ctn.dto.User;
 import aor.paj.ctn.entity.MessageEntity;
 import aor.paj.ctn.entity.UserEntity;
+import aor.paj.ctn.websocket.ChatEndpoint;
+import aor.paj.ctn.websocket.Notifier;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -27,7 +32,12 @@ public class MessageBean {
     @EJB
     private UserBean userBean;
 
-    public void sendMessage(Message message, String token, User to) {
+    @Inject
+    ChatEndpoint chatEndpoint;
+    @Inject
+    ObjectMapper objectMapper;
+
+    public void sendMessage(Message message, String token, User receiver) {
         User sender = userBean.convertEntityByToken(token);
         if (sender == null) {
             logger.error("Non existent token tried to send a message");
@@ -35,10 +45,40 @@ public class MessageBean {
         }
         MessageEntity messageEntity = new MessageEntity();
         messageEntity.setSender(userBean.convertUserDtotoUserEntity(sender));
-        messageEntity.setRecipient(userBean.convertUserDtotoUserEntity(to));
+        messageEntity.setRecipient(userBean.convertUserDtotoUserEntity(receiver));
         messageEntity.setMessageContent(message.getContent());
         messageEntity.setTimestamp(LocalDateTime.now());
-        messageEntity.setReadStatus(false);
+
+        String receiverToken = userBean.findTokenByUsername(receiver.getUsername());
+
+        // Check if the receiver's WebSocket session is open before sending the notification
+        if (receiverToken != null && chatEndpoint.isSessionOpen(receiverToken)) {
+            // Create a new Message DTO
+            Message messageInst = new Message();
+            messageInst.setSender(sender);
+            messageInst.setReceiver(receiver);
+            messageInst.setContent(message.getContent());
+            messageInst.setTimestamp(messageEntity.getTimestamp());
+            messageInst.setReadStatus(true); // Set readStatus to true if the ChatEndpoint session is open
+
+            // Convert the Message DTO to a JSON string
+            String messageJson;
+            try {
+                if (messageInst != null) {
+                    messageJson = objectMapper.writeValueAsString(messageInst);
+                } else {
+                    throw new RuntimeException("Message is null");
+                }
+            } catch (Exception e) {
+                throw new RuntimeException("Error converting Message to JSON", e);
+            }
+
+            chatEndpoint.sendMessage(receiverToken, messageJson);
+            messageEntity.setReadStatus(true);
+        } else {
+            messageEntity.setReadStatus(false); // Set readStatus to false if the ChatEndpoint session is not open
+
+        }
         messageDao.persist(messageEntity);
     }
 

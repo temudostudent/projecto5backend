@@ -1,50 +1,74 @@
 package aor.paj.ctn.websocket;
 
-import jakarta.json.Json;
-import jakarta.json.JsonObject;
+import aor.paj.ctn.bean.UserBean;
+import aor.paj.ctn.bean.EmailService;
+import aor.paj.ctn.bean.NotificationBean;
+import aor.paj.ctn.dto.User;
+import jakarta.ejb.Singleton;
+import jakarta.inject.Inject;
 import jakarta.websocket.*;
 import jakarta.websocket.server.PathParam;
 import jakarta.websocket.server.ServerEndpoint;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.HashMap;
 
-@ServerEndpoint(value= "/websocket/chat/{token}")
+@Singleton
+@ServerEndpoint(value= "/websocket/chat/{senderToken}/{receiverUsername}")
 public class ChatEndpoint {
+    private static final Logger logger = LogManager.getLogger(EmailService.class);
+    @Inject
+    NotificationBean notificationBean;
+    @Inject
+    UserBean userBean;
 
-    HashMap<String, Session> sessions = new HashMap<String, Session>();
+
+    HashMap<String, Session> chatSessions = new HashMap<>();
     @OnOpen
-    public void onOpen(Session session, @PathParam("token") String token) {
-        sessions.put(token, session);
+    public void onOpen(Session session, @PathParam("senderToken") String senderToken, @PathParam("receiverUsername") String receiverUsername) {
+        // When a user opens the chatroom, add their session to the map.
+        chatSessions.put(senderToken, session);
     }
 
     @OnMessage
-    public void onMessage(String message, Session session) {
-        // Parse the message to get the senderToken, receiverToken, and the actual message
-        JsonObject jsonObject = Json.createReader(new StringReader(message)).readObject();
-
-        String receiverToken = jsonObject.getString("receiverToken");
-        String msg = jsonObject.getString("message");
-        sendMessage(receiverToken, msg);
-    }
-
-    @OnClose
-    public void OnClose(Session session, CloseReason reason){
-        System.out.println("Websocket session is closed with CloseCode: "+ reason.getCloseCode() + ": "+reason.getReasonPhrase());
-        for(String key:sessions.keySet()){
-            if(sessions.get(key) == session)
-                sessions.remove(key);
+    public void onMessage(String message, @PathParam("senderToken") String senderToken, @PathParam("receiverUsername") String receiverUsername) {
+        String receiverToken = userBean.findTokenByUsername(receiverUsername);
+        // Check if the recipient's chatroom is open.
+        Session receiverSession = chatSessions.get(receiverToken);
+        if (receiverSession != null) {
+            // If it is, send the message via WebSocket.
+            sendMessage(receiverToken, message);
+        } else {
+            // If it's not, send a notification instead.
+            User sender = userBean.convertEntityByToken(senderToken);
+            User receiver = userBean.convertEntityByToken(receiverToken);
+            if (sender != null && receiver != null) {
+                notificationBean.sendNotification(receiver, senderToken, "message");
+            } else {
+                logger.error("Invalid sender or receiver token");
+            }
         }
     }
 
-    @OnError
-    public void onError(Session session, Throwable throwable) {
-        // Handle error
+    @OnClose
+    public void OnClose(Session session, @PathParam("senderToken") String senderToken, @PathParam("receiverToken") String receiverToken, CloseReason reason){
+        System.out.println("Websocket chatSession is closed with CloseCode: "+ reason.getCloseCode() + ": "+reason.getReasonPhrase());
+        // When a user closes the chatroom, remove their session from the map.
+        chatSessions.remove(senderToken);
     }
 
-    private void sendMessage(String receiverToken, String message) {
-        Session receiverSession = sessions.get(receiverToken);
+
+    public boolean isSessionOpen(String token) {
+        Session session = chatSessions.get(token);
+        return session != null && session.isOpen();
+    }
+
+    public void sendMessage(String receiverToken, String message) {
+
+        Session receiverSession = chatSessions.get(receiverToken);
+
         if (receiverSession != null) {
             if(receiverSession.isOpen()) {
                 try {
@@ -59,4 +83,5 @@ public class ChatEndpoint {
             System.out.println("Receiver's token does not exist.");
         }
     }
+
 }
