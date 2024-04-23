@@ -6,6 +6,7 @@ import jakarta.ejb.Stateless;
 import jakarta.persistence.NoResultException;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Stateless
 public class CategoryDao extends AbstractDao<CategoryEntity> {
@@ -67,7 +68,6 @@ public class CategoryDao extends AbstractDao<CategoryEntity> {
         } else {
             try {
                 CategoryEntity categoryEntity = findCategoryByName(name);
-                System.out.println("*********************** " + categoryEntity.getName() + " ***********************");
                 if (categoryEntity != null) {
                     categoryEntity.setName(newName);
                     merge(categoryEntity);
@@ -77,7 +77,6 @@ public class CategoryDao extends AbstractDao<CategoryEntity> {
                 edited = false;
             }
         }
-        System.out.println("*********************** EDITED = " + edited + " ***********************");
         return edited;
     }
 
@@ -87,6 +86,19 @@ public class CategoryDao extends AbstractDao<CategoryEntity> {
                     .getSingleResult();
 
         } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    public List<CategoryEntity> findCategoriesByTaskFrequency() {
+        try {
+            List<Object[]> results = em.createNamedQuery("Category.listCategoriesByTaskFrequency").getResultList();
+            List<CategoryEntity> categories = new ArrayList<>();
+            for (Object[] result : results) {
+                categories.add((CategoryEntity) result[0]);
+            }
+            return categories;
+        } catch (Exception e) {
             return null;
         }
     }

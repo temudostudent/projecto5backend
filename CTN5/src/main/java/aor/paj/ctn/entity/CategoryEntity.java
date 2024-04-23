@@ -8,10 +8,10 @@ import java.util.Set;
 @Entity
 @Table(name="category")
 @NamedQuery(name="Category.findTasksByCategory", query="SELECT t FROM CategoryEntity c JOIN c.taskList t WHERE c.name = :name")
-@NamedQuery(name="Category.findCategories", query="SELECT a FROM CategoryEntity a")
-@NamedQuery(name="Category.findCategoryByName", query="SELECT a FROM CategoryEntity a WHERE a.name = :name")
-@NamedQuery(name="Category.findCategoryById", query="SELECT a FROM CategoryEntity a WHERE a.id = :id")
-@NamedQuery(name="Category.deleteCategory", query="DELETE FROM CategoryEntity a WHERE a.name = :name")
+@NamedQuery(name="Category.findCategories", query="SELECT c FROM CategoryEntity c")
+@NamedQuery(name="Category.findCategoryByName", query="SELECT c FROM CategoryEntity c WHERE c.name = :name")
+@NamedQuery(name="Category.findCategoryById", query="SELECT c FROM CategoryEntity c WHERE c.id = :id")
+@NamedQuery(name="Category.deleteCategory", query="DELETE FROM CategoryEntity c WHERE c.name = :name")
 @NamedQuery(name = "Category.listCategoriesByTaskFrequency", query = "SELECT c, COUNT(t) AS taskCount FROM CategoryEntity c JOIN c.taskList t GROUP BY c ORDER BY taskCount DESC")
 public class CategoryEntity implements Serializable {
     private static final long serialVersionUID = 1L;

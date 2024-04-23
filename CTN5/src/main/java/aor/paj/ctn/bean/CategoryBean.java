@@ -10,6 +10,7 @@ import jakarta.ejb.Stateless;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 @Stateless
 public class CategoryBean implements Serializable {
@@ -51,7 +52,7 @@ public class CategoryBean implements Serializable {
 
     public ArrayList<Category> findAllCategories(){
         ArrayList<Category> categories = new ArrayList<>();
-        ArrayList<CategoryEntity> categoryEntities = categoryDao.findAllCategories();
+        List<CategoryEntity> categoryEntities = categoryDao.findCategoriesByTaskFrequency();
         for (CategoryEntity categoryEntity : categoryEntities) {
             categories.add(convertCategoryEntityToCategoryDto(categoryEntity));
         }
