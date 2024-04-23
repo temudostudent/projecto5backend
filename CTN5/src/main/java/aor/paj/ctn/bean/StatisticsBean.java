@@ -48,8 +48,6 @@ public class StatisticsBean implements Serializable {
 
         addUserCountByDayToStatistics(s);
 
-        System.out.println(s);
-
         return s;
     }
 
@@ -94,21 +92,36 @@ public class StatisticsBean implements Serializable {
 
     private void addUserCountByDayToStatistics(OverallStatistics s) {
         List<Object[]> userCountsByDay = userDao.countUsersByDay();
-        Map<String, String> usersByDay = new HashMap<>();
+
+        Map<String, Integer> usersByDay = new HashMap<>();
 
         for (Object[] result : userCountsByDay) {
             if (result[0] != null && result[1] != null) {
                 Timestamp timestamp = (Timestamp) result[0];
                 Date date = new Date(timestamp.getTime());
-                long count = (long) result[1];
+                System.out.println(result[0] + " " + result[1]);
+                Long count = (Long) result[1]; // Change this line
 
                 String dateString = new SimpleDateFormat("yyyy-MM-dd").format(date);
 
-                usersByDay.put(dateString, String.valueOf(count));
+                // Check if the map already contains an entry for the day
+                if (usersByDay.containsKey(dateString)) {
+                    // If it does, add the new count to the existing count
+                    usersByDay.put(dateString, usersByDay.get(dateString) + count.intValue());
+                } else {
+                    // If it doesn't, simply put the new count in the map
+                    usersByDay.put(dateString, count.intValue());
+                }
             }
         }
 
-        s.setUsersByTime(usersByDay);
+        // Convert the map values to string
+        Map<String, String> usersByDayStr = new HashMap<>();
+        for (Map.Entry<String, Integer> entry : usersByDay.entrySet()) {
+            usersByDayStr.put(entry.getKey(), String.valueOf(entry.getValue()));
+        }
+
+        s.setUsersByTime(usersByDayStr);
     }
 
 
