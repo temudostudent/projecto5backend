@@ -10,8 +10,7 @@ import java.time.LocalDateTime;
 @NamedQuery(name = "Message.findMessagesBySender", query = "SELECT m FROM MessageEntity m WHERE m.sender = :sender")
 @NamedQuery(name = "Message.findMessagesByReceiver", query = "SELECT m FROM MessageEntity m WHERE m.recipient = :recipient")
 @NamedQuery(name = "Message.findMessagesByReadStatus", query = "SELECT m FROM MessageEntity m WHERE m.readStatus = :readStatus")
-@NamedQuery(name = "Message.findMessagesBetweenTwoUsers",
-        query = "SELECT m FROM MessageEntity m WHERE (m.sender = :user1 AND m.recipient = :user2) OR (m.sender = :user2 AND m.recipient = :user1) ORDER BY m.timestamp ASC")
+@NamedQuery(name = "Message.findMessagesBetweenTwoUsers", query = "SELECT m FROM MessageEntity m WHERE (m.sender = :user1 AND m.recipient = :user2) OR (m.sender = :user2 AND m.recipient = :user1) ORDER BY m.timestamp ASC")
 public class MessageEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

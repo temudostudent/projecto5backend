@@ -33,4 +33,15 @@ public class AuthenticationLogDao extends AbstractDao<AuthenticationLogEntity> {
             return null;
         }
     }
+
+    public Integer countAuthenticatedUsers(Boolean isAuth) {
+        try {
+            return ((Number) em.createNamedQuery("AuthenticationLog.countAuthenticated")
+                    .setParameter("isAuth", isAuth)
+                    .getSingleResult())
+                    .intValue();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
 }

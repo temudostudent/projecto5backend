@@ -75,6 +75,7 @@ public class MessageBean {
 
             chatEndpoint.sendMessage(receiverToken, messageJson);
             messageEntity.setReadStatus(true);
+            messageEntity.setReadTimestamp(LocalDateTime.now());
         } else {
             messageEntity.setReadStatus(false); // Set readStatus to false if the ChatEndpoint session is not open
 
@@ -109,6 +110,29 @@ public class MessageBean {
                     .collect(Collectors.toList());
         }
 
+    }
+
+    public void setAllMessagesFromConversationRead(String authenticatedUsername, String username1, String username2) {
+        UserEntity authenticatedUser = userDao.findUserByUsername(authenticatedUsername);
+        UserEntity user1 = userDao.findUserByUsername(username1);
+        UserEntity user2 = userDao.findUserByUsername(username2);
+
+        if (authenticatedUser == null || user1 == null || user2 == null) {
+            logger.error("Non existent user tried to set messages as read");
+            throw new RuntimeException("Invalid user");
+        } else if (user1.equals(user2)) {
+            logger.error("User tried to set messages with himself as read");
+            throw new RuntimeException("Invalid user");
+        } else {
+            List<MessageEntity> messages = messageDao.findMessagesBetweenTwoUsers(user1, user2);
+            for (MessageEntity message : messages) {
+                if (!message.isReadStatus() && message.getRecipient().equals(authenticatedUser)) {
+                    message.setReadStatus(true);
+                    message.setReadTimestamp(LocalDateTime.now());
+                    messageDao.merge(message);
+                }
+            }
+        }
     }
 
     private Message convertToDto(MessageEntity messageEntity) {

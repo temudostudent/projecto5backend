@@ -118,6 +118,7 @@ public class NotificationBean {
         List<NotificationEntity> unreadNotifications = notificationDao.findNotificationsFromReadStatusByReceiver(false, username);
         for (NotificationEntity notification : unreadNotifications) {
             notification.setReadStatus(true);
+            notification.setReadTimestamp(LocalDateTime.now());
             notificationDao.merge(notification);
         }
     }
@@ -126,6 +127,7 @@ public class NotificationBean {
         List<NotificationEntity> unreadNotifications = notificationDao.findNotificationsBySenderAndReceiver(false, senderUsername, receiverUsername);
         for (NotificationEntity notification : unreadNotifications) {
             notification.setReadStatus(true);
+            notification.setReadTimestamp(LocalDateTime.now());
             notificationDao.merge(notification);
         }
     }

@@ -41,6 +41,8 @@ public class StatisticsService {
                 stat = statsBean.countAllUsers();
             }
 
+
+
             response = Response.status(200).entity(stat).build();
         }
         return response;

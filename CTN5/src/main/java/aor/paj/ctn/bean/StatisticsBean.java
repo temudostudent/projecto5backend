@@ -1,5 +1,6 @@
 package aor.paj.ctn.bean;
 
+import aor.paj.ctn.dao.AuthenticationLogDao;
 import aor.paj.ctn.dao.UserDao;
 import aor.paj.ctn.dao.TaskDao;
 import aor.paj.ctn.dto.OverallStatistics;
@@ -11,18 +12,23 @@ import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Stateless
 public class StatisticsBean implements Serializable {
 
     @EJB
     private UserDao userDao;
-
     @EJB
     private TaskDao taskDao;
+    @EJB
+    private AuthenticationLogDao authenticationLogDao;
 
     public StatisticsBean(){}
 
+    //USERS
     public OverallStatistics countAllUsers() {
         OverallStatistics s = new OverallStatistics();
         int count = userDao.countAllUsers();
@@ -33,6 +39,13 @@ public class StatisticsBean implements Serializable {
             s.setScrumMasters(userDao.countUsersByTypeOfUser(User.SCRUMMASTER));
             s.setProductOwners(userDao.countUsersByTypeOfUser(User.PRODUCTOWNER));
         }
+
+        countConfirmedAndNotConfirmedUsers(s);
+
+        addUserCountOverTimeToStatistics(s);
+
+        System.out.println(s);
+
         return s;
     }
 
@@ -50,6 +63,33 @@ public class StatisticsBean implements Serializable {
         return s;
     }
 
+    private void countConfirmedAndNotConfirmedUsers(OverallStatistics s) {
+        int countConfirmed = authenticationLogDao.countAuthenticatedUsers(true);
+        int countNotConfirmed = authenticationLogDao.countAuthenticatedUsers(false);
+
+        s.setConfirmedUsers(countConfirmed);
+        s.setNotConfirmedUsers(countNotConfirmed);
+    }
+
+    private void addUserCountOverTimeToStatistics(OverallStatistics s) {
+        List<Object[]> userCountsOverTime = userDao.countUsersOverTime();
+        Map<Integer, String> usersByTime = new HashMap<>();
+
+        for (Object[] result : userCountsOverTime) {
+            if (result[0] != null && result[1] != null && result[2] != null) {
+                int year = (int) result[0];
+                int week = (int) result[1];
+                long count = (long) result[2];
+
+                usersByTime.put(week + year * 100, String.valueOf(count));
+            }
+        }
+
+        s.setUsersByTime(usersByTime);
+    }
+
+
+    //TASKS
     public OverallStatistics countAllTasksOvr() {
         OverallStatistics s = new OverallStatistics();
         int count = taskDao.countAllTasks();
@@ -122,5 +162,6 @@ public class StatisticsBean implements Serializable {
         }
         return s;
     }
+
 
 }

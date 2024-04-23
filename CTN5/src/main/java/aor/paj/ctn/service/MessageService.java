@@ -90,4 +90,30 @@ public class MessageService {
         }
         return response;
     }
+
+    @PUT
+    @Path("/read")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response setAllMessagesRead(@HeaderParam("token") String token,
+                                       @QueryParam("user1") String username1,
+                                       @QueryParam("user2") String username2) {
+
+        boolean auth = userBean.isAuthenticated(token);
+        String authenticatedUsername = userBean.convertEntityByToken(token).getUsername();
+
+        if (!auth) {
+            return Response.status(401).entity("Invalid credentials").build();
+        }
+
+        if (username1 == null || username1.isEmpty() || username2 == null || username2.isEmpty()) {
+            return Response.status(400).entity("Both user1 and user2 must be provided").build();
+        }
+
+        try {
+            messageBean.setAllMessagesFromConversationRead(authenticatedUsername, username1, username2);
+            return Response.status(200).entity("All messages from the conversation have been set to read").build();
+        } catch (RuntimeException e) {
+            return Response.status(404).entity(e.getMessage()).build();
+        }
+    }
 }

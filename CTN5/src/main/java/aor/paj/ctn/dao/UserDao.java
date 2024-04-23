@@ -5,6 +5,7 @@ import jakarta.ejb.Stateless;
 import jakarta.persistence.NoResultException;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Stateless
 public class UserDao extends AbstractDao<UserEntity> {
@@ -151,6 +152,14 @@ public class UserDao extends AbstractDao<UserEntity> {
 	public Integer countUsersByVisibility(boolean visible) {
 		try {
 			return ((Number) em.createNamedQuery("User.countUsersByVisibility").setParameter("visible", visible).getSingleResult()).intValue();
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	public List<Object[]> countUsersOverTime() {
+		try {
+			return em.createNamedQuery("User.countUsersOverTime").getResultList();
 		} catch (Exception e) {
 			return null;
 		}

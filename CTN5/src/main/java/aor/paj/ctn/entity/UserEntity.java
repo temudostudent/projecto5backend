@@ -24,7 +24,7 @@ import java.util.Set;
 @NamedQuery(name = "User.countAllUsers", query = "SELECT COUNT(*) FROM UserEntity u WHERE u.visible = true AND u.username <> 'ADMIN' AND u.username <> 'deletedUser'")
 @NamedQuery(name = "User.countUsersByTypeOfUser", query = "SELECT COUNT(u) FROM UserEntity u WHERE u.visible = true AND u.typeOfUser = :typeOfUser AND u.username <> 'ADMIN'")
 @NamedQuery(name = "User.countUsersByVisibility", query = "SELECT COUNT(u) FROM UserEntity u WHERE u.visible = :visible AND u.username <> 'ADMIN' AND u.username <> 'deletedUser'")
-
+@NamedQuery(name = "User.countUsersOverTime", query = "SELECT YEAR(u.confirmDate), WEEK(u.confirmDate), COUNT(u) FROM UserEntity u GROUP BY YEAR(u.confirmDate), WEEK(u.confirmDate)")
 public class UserEntity implements Serializable{
 
     private static final long serialVersionUID = 1L;

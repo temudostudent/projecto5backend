@@ -11,6 +11,7 @@ import java.util.Date;
 @Table(name = "authentication_log")
 @NamedQuery(name = "AuthenticationLog.findALByToken", query = "SELECT DISTINCT al FROM AuthenticationLogEntity al WHERE al.confirmToken = :token")
 @NamedQuery(name = "AuthenticationLog.findALByUser", query = "SELECT DISTINCT al FROM AuthenticationLogEntity al WHERE al.user = :user")
+@NamedQuery(name = "AuthenticationLog.countAuthenticated", query = "SELECT COUNT(al) FROM AuthenticationLogEntity al WHERE al.authenticated = :isAuth")
 public class AuthenticationLogEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
