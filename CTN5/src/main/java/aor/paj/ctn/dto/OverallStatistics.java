@@ -25,9 +25,9 @@ public class OverallStatistics extends UserStatistics{
     @XmlElement
     private double avgTaskDone;
     @XmlElement
-    private Map<Integer, String> usersByTime;
+    private Map<String, String> usersByTime;
     @XmlElement
-    private Map<Integer, String> tasksDoneByTime;
+    private Map<String, String> tasksDoneByTime;
 
     public OverallStatistics() {
     }
@@ -96,19 +96,19 @@ public class OverallStatistics extends UserStatistics{
         this.avgTaskDone = avgTaskDone;
     }
 
-    public Map<Integer, String> getUsersByTime() {
+    public Map<String, String> getUsersByTime() {
         return usersByTime;
     }
 
-    public void setUsersByTime(Map<Integer, String> usersByTime) {
+    public void setUsersByTime(Map<String, String> usersByTime) {
         this.usersByTime = usersByTime;
     }
 
-    public Map<Integer, String> getTasksDoneByTime() {
+    public Map<String, String> getTasksDoneByTime() {
         return tasksDoneByTime;
     }
 
-    public void setTasksDoneByTime(Map<Integer, String> tasksDoneByTime) {
+    public void setTasksDoneByTime(Map<String, String> tasksDoneByTime) {
         this.tasksDoneByTime = tasksDoneByTime;
     }
 }

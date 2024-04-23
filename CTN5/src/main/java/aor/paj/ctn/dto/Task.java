@@ -39,6 +39,8 @@ public class Task {
     public boolean erased;
     @XmlElement
     public User owner;
+    @XmlElement
+    public LocalDate conclusionDate;
 
     public Task() {
     }
@@ -146,5 +148,13 @@ public class Task {
 
     public void setErased(boolean erased) {
         this.erased = erased;
+    }
+
+    public LocalDate getConclusionDate() {
+        return conclusionDate;
+    }
+
+    public void setConclusionDate(LocalDate conclusionDate) {
+        this.conclusionDate = conclusionDate;
     }
 }

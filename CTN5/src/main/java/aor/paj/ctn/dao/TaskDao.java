@@ -5,7 +5,10 @@ import aor.paj.ctn.entity.UserEntity;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.NoResultException;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.List;
 
 @Stateless
 public class TaskDao extends AbstractDao<TaskEntity> {
@@ -150,6 +153,32 @@ public class TaskDao extends AbstractDao<TaskEntity> {
 	public Double averageTasksPerUser() {
 		try {
 			return ((Number) em.createNamedQuery("Task.averageTasksPerUser").getSingleResult()).doubleValue();
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	public Double averageCompletionTime() {
+		try {
+			List<Object[]> dates = em.createNamedQuery("Task.fetchStartAndConclusionDates").getResultList();
+			if (dates.isEmpty()) {
+				return null;
+			}
+			long totalDays = 0;
+			for (Object[] datePair : dates) {
+				LocalDate startDate = (LocalDate) datePair[0];
+				LocalDate conclusionDate = (LocalDate) datePair[1];
+				totalDays += ChronoUnit.DAYS.between(startDate, conclusionDate);
+			}
+			return (double) totalDays / dates.size();
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	public List<Object[]> countTasksByConclusionDate() {
+		try {
+			return em.createNamedQuery("Task.countTasksByConclusionDate").getResultList();
 		} catch (Exception e) {
 			return null;
 		}

@@ -12,6 +12,10 @@ import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 
 import java.io.Serializable;
+import java.sql.Date;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +46,7 @@ public class StatisticsBean implements Serializable {
 
         countConfirmedAndNotConfirmedUsers(s);
 
-        addUserCountOverTimeToStatistics(s);
+        addUserCountByDayToStatistics(s);
 
         System.out.println(s);
 
@@ -73,7 +77,7 @@ public class StatisticsBean implements Serializable {
 
     private void addUserCountOverTimeToStatistics(OverallStatistics s) {
         List<Object[]> userCountsOverTime = userDao.countUsersOverTime();
-        Map<Integer, String> usersByTime = new HashMap<>();
+        Map<String, String> usersByTime = new HashMap<>();
 
         for (Object[] result : userCountsOverTime) {
             if (result[0] != null && result[1] != null && result[2] != null) {
@@ -81,11 +85,30 @@ public class StatisticsBean implements Serializable {
                 int week = (int) result[1];
                 long count = (long) result[2];
 
-                usersByTime.put(week + year * 100, String.valueOf(count));
+                usersByTime.put(String.valueOf(week + year * 100), String.valueOf(count));
             }
         }
 
         s.setUsersByTime(usersByTime);
+    }
+
+    private void addUserCountByDayToStatistics(OverallStatistics s) {
+        List<Object[]> userCountsByDay = userDao.countUsersByDay();
+        Map<String, String> usersByDay = new HashMap<>();
+
+        for (Object[] result : userCountsByDay) {
+            if (result[0] != null && result[1] != null) {
+                Timestamp timestamp = (Timestamp) result[0];
+                Date date = new Date(timestamp.getTime());
+                long count = (long) result[1];
+
+                String dateString = new SimpleDateFormat("yyyy-MM-dd").format(date);
+
+                usersByDay.put(dateString, String.valueOf(count));
+            }
+        }
+
+        s.setUsersByTime(usersByDay);
     }
 
 
@@ -94,12 +117,12 @@ public class StatisticsBean implements Serializable {
         OverallStatistics s = new OverallStatistics();
         int count = taskDao.countAllTasks();
 
-        System.out.println("wwwwwwwwwwwwwwwwww " + taskDao.averageTasksPerUser());
-
         if (count >= 0){
             s.setTasks(count);
             countAllTasksByState(s);
+            updateTasksDoneByTime(s);
             s.setAvgTasksPerUser(taskDao.averageTasksPerUser());
+            s.setAvgTaskDone(taskDao.averageCompletionTime());
 
         }
         return s;
@@ -163,5 +186,18 @@ public class StatisticsBean implements Serializable {
         return s;
     }
 
+    private void updateTasksDoneByTime(OverallStatistics s) {
+        List<Object[]> taskData = taskDao.countTasksByConclusionDate();
+        Map<String, String> tasksDoneByTime = new HashMap<>();
+
+        for (Object[] data : taskData) {
+            LocalDate conclusionDate = (LocalDate) data[0];
+            Long count = (Long) data[1];
+
+            tasksDoneByTime.put(conclusionDate.toString(), count.toString());
+        }
+
+        s.setTasksDoneByTime(tasksDoneByTime);
+    }
 
 }

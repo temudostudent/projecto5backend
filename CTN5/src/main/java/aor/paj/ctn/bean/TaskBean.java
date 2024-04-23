@@ -155,6 +155,9 @@ public class TaskBean implements Serializable {
             TaskEntity taskEntity = taskDao.findTaskById(taskId);
             if (taskEntity != null) {
                 taskEntity.setStateId(stateId);
+                if (taskEntity.getStateId() == 300) {
+                    taskEntity.setConclusionDate(LocalDate.now());
+                }
                 taskDao.merge(taskEntity);
                 updated = true;
             }

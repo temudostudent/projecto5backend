@@ -16,13 +16,13 @@ import java.time.LocalDate;
 @NamedQuery(name="Task.findTasksByErasedStatus", query="SELECT a FROM TaskEntity a WHERE a.erased = :erased")
 @NamedQuery(name="Task.findAllTasks", query="SELECT a FROM TaskEntity a")
 @NamedQuery(name="DeleteTask", query="DELETE FROM TaskEntity a WHERE a.id = :id")
-@NamedQuery(name = "Task.countAllTasks", query = "SELECT COUNT(*) FROM TaskEntity t")
-@NamedQuery(name = "Task.averageTasksPerUser", query = "SELECT AVG((SELECT COUNT(t) FROM TaskEntity t WHERE t.owner = u AND t.erased = false)) FROM UserEntity u WHERE u.visible=true")
-@NamedQuery(name = "Task.countAllTasksFromUser", query = "SELECT COUNT(t) FROM TaskEntity t WHERE t.owner = :owner")
-@NamedQuery(name = "Task.countTasksByState", query = "SELECT COUNT(t) FROM TaskEntity t WHERE t.stateId = :stateId")
-@NamedQuery(name = "Task.countAllTasksFromUserByState", query = "SELECT COUNT(t) FROM TaskEntity t WHERE t.owner = :owner AND t.stateId = :stateId")
-
-
+@NamedQuery(name="Task.countAllTasks", query = "SELECT COUNT(*) FROM TaskEntity t")
+@NamedQuery(name="Task.averageTasksPerUser", query = "SELECT AVG((SELECT COUNT(t) FROM TaskEntity t WHERE t.owner = u AND t.erased = false)) FROM UserEntity u WHERE u.visible=true")
+@NamedQuery(name="Task.countAllTasksFromUser", query = "SELECT COUNT(t) FROM TaskEntity t WHERE t.owner = :owner")
+@NamedQuery(name="Task.countTasksByState", query = "SELECT COUNT(t) FROM TaskEntity t WHERE t.stateId = :stateId")
+@NamedQuery(name="Task.countAllTasksFromUserByState", query = "SELECT COUNT(t) FROM TaskEntity t WHERE t.owner = :owner AND t.stateId = :stateId")
+@NamedQuery(name="Task.fetchStartAndConclusionDates", query="SELECT t.startDate, t.conclusionDate FROM TaskEntity t WHERE t.conclusionDate IS NOT NULL")
+@NamedQuery(name="Task.countTasksByConclusionDate", query = "SELECT t.conclusionDate, COUNT(t) FROM TaskEntity t WHERE t.conclusionDate IS NOT NULL GROUP BY t.conclusionDate")
 public class TaskEntity implements Serializable{
 
     private static final long serialVersionUID = 1L;
@@ -47,7 +47,7 @@ public class TaskEntity implements Serializable{
     @Column (name="creation_date", nullable = false, unique = false, updatable = false)
     private LocalDate creationDate;
 
-    @Column (name="conclusion_date", nullable = true, unique = false, updatable = false)
+    @Column (name="conclusion_date", nullable = true, unique = false, updatable = true)
     private LocalDate conclusionDate;
 
     @Column (name="startDate", nullable = false, unique = false, updatable = true)
