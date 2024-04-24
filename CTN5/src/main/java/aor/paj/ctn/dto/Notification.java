@@ -18,7 +18,11 @@ public class Notification {
     @XmlElement
     private LocalDateTime timestamp;
     @XmlElement
-    private String type;
+    private int type;
+    @XmlElement
+    public static final int MESSAGE = 10;
+    @XmlElement
+    public static final int TASK = 20;
 
     public Notification() {
     }
@@ -67,11 +71,15 @@ public class Notification {
         this.timestamp = timestamp;
     }
 
-    public String getType() {
+    public int getType() {
         return type;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setType(int type) {
+        if (type == MESSAGE) {
+            this.type = MESSAGE;
+        } else if (type == TASK) {
+            this.type = TASK;
+        }
     }
 }

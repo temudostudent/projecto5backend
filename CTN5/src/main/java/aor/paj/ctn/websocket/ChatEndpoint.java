@@ -3,6 +3,7 @@ package aor.paj.ctn.websocket;
 import aor.paj.ctn.bean.UserBean;
 import aor.paj.ctn.bean.EmailService;
 import aor.paj.ctn.bean.NotificationBean;
+import aor.paj.ctn.dto.Notification;
 import aor.paj.ctn.dto.User;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
@@ -45,7 +46,7 @@ public class ChatEndpoint {
             User sender = userBean.convertEntityByToken(senderToken);
             User receiver = userBean.convertEntityByToken(receiverToken);
             if (sender != null && receiver != null) {
-                notificationBean.sendNotification(receiver, senderToken, "message");
+                notificationBean.sendNotification(receiver, senderToken, Notification.MESSAGE);
             } else {
                 logger.error("Invalid sender or receiver token");
             }

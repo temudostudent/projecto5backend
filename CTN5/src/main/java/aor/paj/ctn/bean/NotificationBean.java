@@ -26,7 +26,7 @@ public class NotificationBean {
     @Inject
     ObjectMapper objectMapper;
 
-    public void sendNotification(User receiver, String token, String type) {
+    public void sendNotification(User receiver, String token, int type) {
 
         User sender = userBean.convertEntityByToken(token);
         if (sender == null) {
@@ -48,6 +48,7 @@ public class NotificationBean {
             Notification notification = new Notification();
             notification.setSender(sender);
             notification.setTimestamp(notificationEntity.getTimestamp());
+            notification.setType(Notification.MESSAGE);
 
             // Convert the Notification DTO to a JSON string
 

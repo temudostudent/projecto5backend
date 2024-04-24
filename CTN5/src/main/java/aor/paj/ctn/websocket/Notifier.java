@@ -1,6 +1,7 @@
 package aor.paj.ctn.websocket;
 
 import aor.paj.ctn.bean.NotificationBean;
+import aor.paj.ctn.bean.TaskBean;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Singleton;
 import jakarta.websocket.*;
@@ -15,6 +16,8 @@ public class Notifier {
 
     @EJB
     private NotificationBean notificationBean;
+    @EJB
+    private TaskBean taskBean;
 
     HashMap<String, Session> sessions = new HashMap<String, Session>();
     public void send(String token, String msg) {
@@ -54,6 +57,29 @@ public class Notifier {
             System.out.println("Something went wrong!");
         }
     }
+
+   /*@OnMessage
+    public void handleTaskStatusUpdate(Session session, String message) {
+        // Parse the message to get the task ID and new status
+        // This assumes the message is in the format "taskId:status"
+        String[] parts = message.split(":");
+        String taskId = parts[0];
+        int status = Integer.parseInt(parts[1]);
+
+        // Update the task status
+        boolean updated = taskBean.updateTaskStatus(taskId, status);
+
+        // Send a response back to the client
+        try {
+            if (updated) {
+                session.getBasicRemote().sendText("Task status updated successfully");
+            } else {
+                session.getBasicRemote().sendText("Failed to update task status");
+            }
+        } catch (IOException e) {
+            System.out.println("Something went wrong!");
+        }
+    }*/
 
     public boolean isSessionOpen(String token) {
         Session session = sessions.get(token);

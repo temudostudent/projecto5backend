@@ -201,13 +201,16 @@ public class StatisticsBean implements Serializable {
 
     private void updateTasksDoneByTime(OverallStatistics s) {
         List<Object[]> taskData = taskDao.countTasksByConclusionDate();
+
         Map<String, String> tasksDoneByTime = new HashMap<>();
+        long runningTotal = 0;
 
         for (Object[] data : taskData) {
             LocalDate conclusionDate = (LocalDate) data[0];
             Long count = (Long) data[1];
 
-            tasksDoneByTime.put(conclusionDate.toString(), count.toString());
+            runningTotal += count;
+            tasksDoneByTime.put(conclusionDate.toString(), String.valueOf(runningTotal));
         }
 
         s.setTasksDoneByTime(tasksDoneByTime);

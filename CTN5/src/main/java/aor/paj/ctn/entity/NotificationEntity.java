@@ -35,8 +35,8 @@ public class NotificationEntity implements Serializable {
     @Column(name = "read_status", nullable = false)
     private boolean readStatus;
 
-    @Column(name = "type", nullable = false)
-    private String type;
+    @Column(name = "type", nullable = true)
+    private int type;
 
     public NotificationEntity() {
     }
@@ -85,11 +85,11 @@ public class NotificationEntity implements Serializable {
         return id;
     }
 
-    public String getType() {
+    public int getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(int type) {
         this.type = type;
     }
 }

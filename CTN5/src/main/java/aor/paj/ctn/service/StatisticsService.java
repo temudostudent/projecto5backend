@@ -1,8 +1,10 @@
 package aor.paj.ctn.service;
 
+import aor.paj.ctn.bean.CategoryBean;
 import aor.paj.ctn.bean.NotificationBean;
 import aor.paj.ctn.bean.StatisticsBean;
 import aor.paj.ctn.bean.UserBean;
+import aor.paj.ctn.dto.Category;
 import aor.paj.ctn.dto.OverallStatistics;
 import aor.paj.ctn.dto.User;
 import aor.paj.ctn.dto.UserStatistics;
@@ -11,6 +13,8 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import java.util.List;
+
 @Path("/statistics")
 public class StatisticsService {
 
@@ -18,6 +22,8 @@ public class StatisticsService {
     UserBean userBean;
     @Inject
     StatisticsBean statsBean;
+    @Inject
+    CategoryBean categoryBean;
     @Inject
     NotificationBean notificationBean;
 
@@ -90,6 +96,26 @@ public class StatisticsService {
             notifications = notificationBean.countUnreadedNotifications(user);
 
             response = Response.status(200).entity(notifications).build();
+        }
+        return response;
+    }
+
+    @GET
+    @Path("/categories")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllCategories(@HeaderParam("token") String token) {
+
+        Response response;
+
+        if (userBean.isAuthenticated(token)) {
+            try {
+                List<Category> allCategories = categoryBean.findAllCategoriesByTaskFrequency();
+                response = Response.status(200).entity(allCategories).build();
+            } catch (Exception e) {
+                response = Response.status(404).entity("Something went wrong. The categories were not found.").build();
+            }
+        } else {
+            response = Response.status(401).entity("Invalid credentials").build();
         }
         return response;
     }

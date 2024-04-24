@@ -4,6 +4,7 @@ import aor.paj.ctn.bean.MessageBean;
 import aor.paj.ctn.bean.NotificationBean;
 import aor.paj.ctn.bean.UserBean;
 import aor.paj.ctn.dto.Message;
+import aor.paj.ctn.dto.Notification;
 import aor.paj.ctn.dto.User;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -40,7 +41,7 @@ public class MessageService {
             }
 
             messageBean.sendMessage(message, token, userTo);
-            notificationBean.sendNotification(userTo, token, "message");
+            notificationBean.sendNotification(userTo, token, Notification.MESSAGE);
             response = Response.status(200).entity("Message sent successfully").build();
         } else {
             response = Response.status(401).entity("Invalid credentials").build();
