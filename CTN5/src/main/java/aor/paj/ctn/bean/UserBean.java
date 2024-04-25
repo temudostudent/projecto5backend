@@ -40,6 +40,8 @@ public class UserBean implements Serializable {
     private AuthenticationLogDao authenticationLogDao;
     @EJB
     private CategoryBean categoryBean;
+    @EJB
+    private StatisticsBean statisticsBean;
 
     @Inject
     private EmailService emailService;
@@ -461,7 +463,7 @@ public class UserBean implements Serializable {
     }
 
     //Coloco username porque no objeto de atualização não está referenciado
-    public boolean updateUser(User user, String username) {
+    public boolean updateUser(User user, String username, String token) {
         boolean status = false;
 
         // Busca o user pelo username
@@ -507,6 +509,7 @@ public class UserBean implements Serializable {
 
             try{
                 userDao.merge(u); //Atualiza o user na base de dados
+                statisticsBean.countAllUsers(token);
                 status = true;
             } catch (Exception e){
                 e.printStackTrace();

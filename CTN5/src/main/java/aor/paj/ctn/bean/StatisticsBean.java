@@ -8,8 +8,11 @@ import aor.paj.ctn.dto.Task;
 import aor.paj.ctn.dto.User;
 import aor.paj.ctn.dto.UserStatistics;
 import aor.paj.ctn.entity.UserEntity;
+import aor.paj.ctn.websocket.Notifier;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
 
 import java.io.Serializable;
 import java.sql.Date;
@@ -29,11 +32,15 @@ public class StatisticsBean implements Serializable {
     private TaskDao taskDao;
     @EJB
     private AuthenticationLogDao authenticationLogDao;
+    @EJB
+    private Notifier notifier;
+    @Inject
+    ObjectMapper objectMapper;
 
     public StatisticsBean(){}
 
     //USERS
-    public OverallStatistics countAllUsers() {
+    public OverallStatistics countAllUsers(String token) {
         OverallStatistics s = new OverallStatistics();
         int count = userDao.countAllUsers();
 
@@ -47,6 +54,20 @@ public class StatisticsBean implements Serializable {
         countConfirmedAndNotConfirmedUsers(s);
 
         addUserCountByDayToStatistics(s);
+
+        // Convert the DTO to a JSON string
+        String userStatsJson;
+        try {
+            if (s != null) {
+                userStatsJson = objectMapper.writeValueAsString(s);
+            } else {
+                throw new RuntimeException("User Stats is null");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error converting user stats to JSON", e);
+        }
+
+        notifier.sendToAllExcept(userStatsJson, token);
 
         return s;
     }
@@ -126,7 +147,8 @@ public class StatisticsBean implements Serializable {
 
 
     //TASKS
-    public OverallStatistics countAllTasksOvr() {
+    public OverallStatistics countAllTasksOvr(String token) {
+
         OverallStatistics s = new OverallStatistics();
         int count = taskDao.countAllTasks();
 
@@ -138,6 +160,21 @@ public class StatisticsBean implements Serializable {
             s.setAvgTaskDone(taskDao.averageCompletionTime());
 
         }
+
+        // Convert the DTO to a JSON string
+        String tasksStatsJson;
+        try {
+            if (s != null) {
+                tasksStatsJson = objectMapper.writeValueAsString(s);
+            } else {
+                throw new RuntimeException("Task Stats is null");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error converting task stats to JSON", e);
+        }
+
+        System.out.println("statsBean");
+        notifier.sendToAllExcept(tasksStatsJson, token);
         return s;
     }
 

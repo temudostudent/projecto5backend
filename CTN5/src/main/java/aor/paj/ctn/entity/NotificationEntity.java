@@ -11,7 +11,13 @@ import java.time.LocalDateTime;
 @NamedQuery(name = "Notification.findNotificationsByReadStatus", query = "SELECT n FROM NotificationEntity n WHERE n.readStatus = :readStatus")
 @NamedQuery(name = "Notification.findUserNotificationsByReadStatus", query = "SELECT n FROM NotificationEntity n WHERE n.readStatus = :readStatus AND n.recipient.username = :username ORDER BY n.timestamp DESC")
 @NamedQuery(name = "Notification.findLatestFromEachSenderByReceiver", query = "SELECT n FROM NotificationEntity n WHERE n.recipient.username = :receiverUsername AND n.timestamp = (SELECT MAX(n2.timestamp) FROM NotificationEntity n2 WHERE n2.sender.username = n.sender.username AND n2.recipient.username = :receiverUsername) ORDER BY n.timestamp DESC")
-@NamedQuery(name = "Notification.findNotificationsBySenderAndReceiver", query = "SELECT n FROM NotificationEntity n WHERE n.readStatus = :readStatus AND n.sender.username = :senderUsername AND n.recipient.username = :receiverUsername")
+@NamedQuery(name = "Notification.findLatestFromEachSenderByReceiverAndType", query = "SELECT n FROM NotificationEntity n WHERE n.recipient.username = :receiverUsername AND n.type = :type AND n.timestamp IN (SELECT MAX(n2.timestamp) FROM NotificationEntity n2 WHERE n2.sender.username = n.sender.username AND n2.recipient.username = :receiverUsername AND n2.type = :type GROUP BY n2.sender) ORDER BY n.timestamp DESC")
+@NamedQuery(name = "Notification.findLatestFromEachSenderByReceiverAndType10",
+        query = "SELECT n FROM NotificationEntity n WHERE n.recipient.username = :receiverUsername AND n.type = 10 AND n.timestamp IN (SELECT MAX(n2.timestamp) FROM NotificationEntity n2 WHERE n2.sender.username = n.sender.username AND n2.recipient.username = :receiverUsername AND n2.type = 10 GROUP BY n2.sender) ORDER BY n.timestamp DESC")
+
+@NamedQuery(name = "Notification.findLatestFromEachSenderByReceiverAndType20",
+        query = "SELECT n FROM NotificationEntity n WHERE n.recipient.username = :receiverUsername AND n.type = 20 AND n.timestamp IN (SELECT MAX(n2.timestamp) FROM NotificationEntity n2 WHERE n2.sender.username = n.sender.username AND n2.recipient.username = :receiverUsername AND n2.type = 20 GROUP BY n2.sender) ORDER BY n.timestamp DESC")
+
 @NamedQuery(name = "Notification.countUserNotificationsByReadStatus", query = "SELECT COUNT(n) FROM NotificationEntity n WHERE n.readStatus = :readStatus AND n.recipient = :recipient")
 public class NotificationEntity implements Serializable {
     @Id

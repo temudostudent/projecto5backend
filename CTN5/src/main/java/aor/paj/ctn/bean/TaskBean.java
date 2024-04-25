@@ -37,6 +37,8 @@ public class TaskBean implements Serializable {
     @EJB
     private NotificationBean notificationBean;
     @EJB
+    private StatisticsBean statisticsBean;
+    @EJB
     private Notifier notifier;
     @Inject
     ObjectMapper objectMapper;
@@ -54,6 +56,7 @@ public class TaskBean implements Serializable {
         task.setCategory(task.getCategory());
         if (validateTask(task)) {
             taskDao.persist(convertTaskToEntity(task));
+            statisticsBean.countAllTasksOvr(token);
             created = true;
 
             task.setCreateThis(true);
@@ -167,6 +170,7 @@ public class TaskBean implements Serializable {
         if (validateTaskForUpdate(originalTask, updatedTask)) {
             // Atualiza a tarefa no banco de dados
             taskDao.merge(convertTaskToEntity(originalTask));
+            statisticsBean.countAllTasksOvr(token);
 
             // Convert the Task DTO to a JSON string
             String taskJson;
@@ -203,6 +207,8 @@ public class TaskBean implements Serializable {
                     }
                 }
                 taskDao.merge(taskEntity);
+                System.out.println("Task updated");
+                statisticsBean.countAllTasksOvr(token);
 
                 // Create a new Task DTO
                 Task task = taskBean.convertTaskEntityToTaskDto(taskEntity);
@@ -243,6 +249,8 @@ public class TaskBean implements Serializable {
             taskEntity.setErased(!taskEntity.getErased());
             taskDao.merge(taskEntity);
 
+            statisticsBean.countAllTasksOvr(token);
+
             // Create a new Task DTO
             Task task = taskBean.convertTaskEntityToTaskDto(taskEntity);
 
@@ -273,6 +281,8 @@ public class TaskBean implements Serializable {
             removed = true;
         } else if (taskEntity != null && taskEntity.getErased()) {
             taskDao.deleteTask(id);
+
+            statisticsBean.countAllTasksOvr(token);
 
             // Create a new Task DTO
             Task task = new Task();
@@ -466,6 +476,15 @@ public class TaskBean implements Serializable {
         task.setOwner(userBean.convertUserEntitytoUserDto(taskEntity.getOwner()));
         return task;
     }
+
+    public Task convertTaskEntityById(String id){
+        TaskEntity currentTaskEntity = taskDao.findTaskById(id);
+        Task currentTask = convertTaskEntityToTaskDto(currentTaskEntity);
+
+        if (currentTask != null){
+            return currentTask;
+        }else return null;
+    };
 
 
 

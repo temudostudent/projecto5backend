@@ -94,6 +94,10 @@ public class NotificationBean {
         notification.setReadStatus(notificationEntity.isReadStatus());
         notification.setTimestamp(notificationEntity.getTimestamp());
         notification.setType(notificationEntity.getType());
+        if (notificationEntity.getTask() != null){
+            notification.setTask(taskBean.convertTaskEntityById(notificationEntity.getTask().getId()));
+        }
+
         return notification;
     }
 
@@ -120,9 +124,22 @@ public class NotificationBean {
     }
 
     public List<Notification> findLatestNotificationsByReceiver(String username) {
+        if (username != null) {
+            List<NotificationEntity> notifications = notificationDao.findLatestFromEachSenderByReceiverAndTypes(username);
+            return notifications.stream()
+                    .map(this::convertToDto)
+                    .collect(Collectors.toList());
+        } else {
+            return null;
+        }
+    }
+
+
+
+    public List<Notification> findLatestFromEachSenderByReceiverAndType(String username, int type) {
 
         if (username != null) {
-            return notificationDao.findLatestNotificationFromEachSenderByReceiver(username).stream()
+            return notificationDao.findLatestFromEachSenderByReceiverAndType(username, type).stream()
                     .map(this::convertToDto)
                     .collect(Collectors.toList());
         } else {

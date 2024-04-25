@@ -44,7 +44,7 @@ public class StatisticsService {
                 stat=statsBean.countUsersByType(typeOfUser);
             }else {
                 //Conta todos os users + users por tipo
-                stat = statsBean.countAllUsers();
+                stat = statsBean.countAllUsers(token);
             }
 
 
@@ -74,7 +74,7 @@ public class StatisticsService {
                 stat = statsBean.countAllTasksFromUser(username);
             }  else {
                 //Conta todos as tasks + tasks por state
-                stat = statsBean.countAllTasksOvr();
+                stat = statsBean.countAllTasksOvr(token);
             }
             response = Response.status(200).entity(stat).build();
         }

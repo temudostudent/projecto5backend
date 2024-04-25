@@ -269,7 +269,7 @@ public class UserService {
                 response = Response.status(422).entity("Invalid phone number").build();
 
             } else {
-                boolean updatedUser = userBean.updateUser(user, username);
+                boolean updatedUser = userBean.updateUser(user, username, token);
                 response = Response.status(Response.Status.OK).entity(updatedUser).build(); //status code 200
             }
         }else {

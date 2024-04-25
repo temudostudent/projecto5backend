@@ -28,6 +28,8 @@ public class OverallStatistics extends UserStatistics{
     private Map<String, String> usersByTime;
     @XmlElement
     private Map<String, String> tasksDoneByTime;
+    @XmlElement
+    private static final String dtoType = "Statistics";
 
     public OverallStatistics() {
     }
@@ -110,5 +112,9 @@ public class OverallStatistics extends UserStatistics{
 
     public void setTasksDoneByTime(Map<String, String> tasksDoneByTime) {
         this.tasksDoneByTime = tasksDoneByTime;
+    }
+
+    public String getDtoType() {
+        return dtoType;
     }
 }

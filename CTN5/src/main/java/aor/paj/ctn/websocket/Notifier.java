@@ -80,9 +80,11 @@ public class Notifier {
     }
 
     public void sendToAllExcept(String msg, String token) {
+        System.out.println("Sending to all except: " + token);
         Session excludedSession = sessions.get(token);
         sessions.values().forEach(session -> {
             if (session != excludedSession && session.isOpen()){
+                System.out.println(session);
                 System.out.println("sending........" + msg);
                 try {
                     session.getBasicRemote().sendText(msg);
