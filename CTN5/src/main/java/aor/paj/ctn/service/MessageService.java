@@ -41,7 +41,7 @@ public class MessageService {
             }
 
             messageBean.sendMessage(message, token, userTo);
-            notificationBean.sendNotification(userTo, token, Notification.MESSAGE);
+            notificationBean.sendNotification(userTo, token, Notification.MESSAGE, null);
             response = Response.status(200).entity("Message sent successfully").build();
         } else {
             response = Response.status(401).entity("Invalid credentials").build();

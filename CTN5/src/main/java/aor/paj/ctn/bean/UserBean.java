@@ -839,12 +839,12 @@ public class UserBean implements Serializable {
 
     }
 
-    public boolean thisTokenIsFromThisUsername(String token, String username){
-
-        if(userDao.findUserByToken(token).getUsername().equals(username)){
-            return true;
-        }else return false;
-
+    public boolean thisTokenIsFromThisUsername(String token, String username) {
+        UserEntity userEntity = userDao.findUserByToken(token);
+        if (userEntity != null) {
+            return userEntity.getUsername().equals(username);
+        }
+        return false;
     }
 
     public boolean verifyOldPassword(String username, String oldPassword){

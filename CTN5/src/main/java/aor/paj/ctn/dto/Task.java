@@ -36,11 +36,17 @@ public class Task {
     @XmlElement
     public Category category;
     @XmlElement
-    public boolean erased;
+    private boolean erased;
     @XmlElement
     public User owner;
     @XmlElement
-    public LocalDate conclusionDate;
+    private LocalDate conclusionDate;
+    @XmlElement
+    private static final String dtoType = "Task";
+    @XmlElement
+    private boolean deleteThis;
+    @XmlElement
+    private boolean createThis;
 
     public Task() {
     }
@@ -156,5 +162,25 @@ public class Task {
 
     public void setConclusionDate(LocalDate conclusionDate) {
         this.conclusionDate = conclusionDate;
+    }
+
+    public String getDtoType() {
+        return dtoType;
+    }
+
+    public boolean isDeleteThis() {
+        return deleteThis;
+    }
+
+    public void setDeleteThis(boolean deleteThis) {
+        this.deleteThis = deleteThis;
+    }
+
+    public boolean isCreateThis() {
+        return createThis;
+    }
+
+    public void setCreateThis(boolean createThis) {
+        this.createThis = createThis;
     }
 }

@@ -46,7 +46,7 @@ public class ChatEndpoint {
             User sender = userBean.convertEntityByToken(senderToken);
             User receiver = userBean.convertEntityByToken(receiverToken);
             if (sender != null && receiver != null) {
-                notificationBean.sendNotification(receiver, senderToken, Notification.MESSAGE);
+                notificationBean.sendNotification(receiver, senderToken, Notification.MESSAGE, null);
             } else {
                 logger.error("Invalid sender or receiver token");
             }

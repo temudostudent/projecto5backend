@@ -2,8 +2,10 @@ package aor.paj.ctn.bean;
 
 import aor.paj.ctn.dao.NotificationDao;
 import aor.paj.ctn.dto.Notification;
+import aor.paj.ctn.dto.Task;
 import aor.paj.ctn.dto.User;
 import aor.paj.ctn.entity.NotificationEntity;
+import aor.paj.ctn.entity.TaskEntity;
 import aor.paj.ctn.websocket.Notifier;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.ejb.EJB;
@@ -21,12 +23,14 @@ public class NotificationBean {
     private NotificationDao notificationDao;
     @EJB
     private UserBean userBean;
+    @EJB
+    private TaskBean taskBean;
     @Inject
     Notifier notifier;
     @Inject
     ObjectMapper objectMapper;
 
-    public void sendNotification(User receiver, String token, int type) {
+    public void sendNotification(User receiver, String token, int type, TaskEntity taskEntity) {
 
         User sender = userBean.convertEntityByToken(token);
         if (sender == null) {
@@ -38,6 +42,9 @@ public class NotificationBean {
         notificationEntity.setTimestamp(LocalDateTime.now());
         notificationEntity.setReadStatus(false);
         notificationEntity.setType(type);
+        if (type == Notification.TASK) {
+            notificationEntity.setTask(taskEntity);
+        }
         notificationDao.persist(notificationEntity);
 
         String receiverToken = userBean.findTokenByUsername(receiver.getUsername());
@@ -48,7 +55,15 @@ public class NotificationBean {
             Notification notification = new Notification();
             notification.setSender(sender);
             notification.setTimestamp(notificationEntity.getTimestamp());
-            notification.setType(Notification.MESSAGE);
+            notification.setType(type);
+
+            if (type == Notification.MESSAGE) {
+                notification.setTask(null);
+            } else if (type == Notification.TASK) {
+                notification.setTask(taskBean.convertTaskEntityToTaskDto(taskEntity));
+            } else {
+                throw new RuntimeException("Invalid notification type");
+            }
 
             // Convert the Notification DTO to a JSON string
 

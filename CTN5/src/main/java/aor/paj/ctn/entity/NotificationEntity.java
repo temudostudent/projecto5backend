@@ -38,6 +38,10 @@ public class NotificationEntity implements Serializable {
     @Column(name = "type", nullable = true)
     private int type;
 
+    @ManyToOne
+    @JoinColumn(name = "task_id", referencedColumnName = "id")
+    private TaskEntity task;
+
     public NotificationEntity() {
     }
 
@@ -91,5 +95,13 @@ public class NotificationEntity implements Serializable {
 
     public void setType(int type) {
         this.type = type;
+    }
+
+    public TaskEntity getTask() {
+        return task;
+    }
+
+    public void setTask(TaskEntity task) {
+        this.task = task;
     }
 }

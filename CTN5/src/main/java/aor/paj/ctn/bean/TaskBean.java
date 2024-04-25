@@ -3,12 +3,16 @@ package aor.paj.ctn.bean;
 import aor.paj.ctn.dao.CategoryDao;
 import aor.paj.ctn.dao.TaskDao;
 import aor.paj.ctn.dao.UserDao;
+import aor.paj.ctn.dto.Notification;
 import aor.paj.ctn.dto.Task;
 import aor.paj.ctn.dto.User;
 import aor.paj.ctn.entity.TaskEntity;
 import aor.paj.ctn.entity.UserEntity;
+import aor.paj.ctn.websocket.Notifier;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
 import org.apache.logging.log4j.*;
 
 import java.io.Serializable;
@@ -30,6 +34,12 @@ public class TaskBean implements Serializable {
     private CategoryBean categoryBean;
     @EJB
     private TaskBean taskBean;
+    @EJB
+    private NotificationBean notificationBean;
+    @EJB
+    private Notifier notifier;
+    @Inject
+    ObjectMapper objectMapper;
 
     private static final Logger logger = LogManager.getLogger(TaskBean.class);
 
@@ -45,6 +55,21 @@ public class TaskBean implements Serializable {
         if (validateTask(task)) {
             taskDao.persist(convertTaskToEntity(task));
             created = true;
+
+            task.setCreateThis(true);
+            // Convert the Task DTO to a JSON string
+            String taskJson;
+            try {
+                if (task != null) {
+                    taskJson = objectMapper.writeValueAsString(task);
+                } else {
+                    throw new RuntimeException("Task is null");
+                }
+            } catch (Exception e) {
+                throw new RuntimeException("Error converting task to JSON", e);
+            }
+
+            notifier.sendToAllExcept(taskJson, token);
 
             logger.info("Task " + task.getTitle() + " is added successfully by "+ task.getOwner().getUsername());
             // the following lines are added just to see the difference between different levels in Logger
@@ -112,7 +137,7 @@ public class TaskBean implements Serializable {
         return response;
     }
 
-    public boolean updateTask(Task originalTask, Task updatedTask) {
+    public boolean updateTask(String token, Task originalTask, Task updatedTask) {
         // Verifica se a tarefa original existe no banco de dados
         if (taskDao.findTaskById(originalTask.getId()) == null) {
             return false; // Tarefa não encontrada, não pode ser atualizada
@@ -142,13 +167,29 @@ public class TaskBean implements Serializable {
         if (validateTaskForUpdate(originalTask, updatedTask)) {
             // Atualiza a tarefa no banco de dados
             taskDao.merge(convertTaskToEntity(originalTask));
+
+            // Convert the Task DTO to a JSON string
+            String taskJson;
+            try {
+                if (updatedTask != null) {
+                    taskJson = objectMapper.writeValueAsString(originalTask);
+                } else {
+                    throw new RuntimeException("Task is null");
+                }
+            } catch (Exception e) {
+                throw new RuntimeException("Error converting task to JSON", e);
+            }
+
+            notifier.sendToAllExcept(taskJson, token);
+
             return true;
         }
         return false;
     }
 
-    public boolean updateTaskStatus(String taskId, int stateId) {
+    public boolean updateTaskStatus(String token, String taskId, int stateId) {
         boolean updated = false;
+
         if (stateId != 100 && stateId != 200 && stateId != 300) {
             updated = false;
         } else {
@@ -162,6 +203,31 @@ public class TaskBean implements Serializable {
                     }
                 }
                 taskDao.merge(taskEntity);
+
+                // Create a new Task DTO
+                Task task = taskBean.convertTaskEntityToTaskDto(taskEntity);
+
+                // Convert the Task DTO to a JSON string
+                String taskJson;
+                try {
+                    if (task != null) {
+                        taskJson = objectMapper.writeValueAsString(task);
+                    } else {
+                        throw new RuntimeException("Task is null");
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException("Error converting task to JSON", e);
+                }
+
+                notifier.sendToAllExcept(taskJson, token);
+
+                String currentUserUsername = userBean.convertEntityByToken(token).getUsername();
+                String taskOwnerUsername = task.getOwner().getUsername();
+
+                if (!currentUserUsername.equals(taskOwnerUsername)) {
+                    notificationBean.sendNotification(task.getOwner(), token, Notification.TASK, taskEntity);
+                }
+
                 updated = true;
             }
         }
@@ -170,18 +236,36 @@ public class TaskBean implements Serializable {
 
 
 
-    public boolean switchErasedTaskStatus(String id) {
+    public boolean switchErasedTaskStatus(String token, String id) {
         boolean swithedErased = false;
         TaskEntity taskEntity = taskDao.findTaskById(id);
         if(taskEntity != null) {
             taskEntity.setErased(!taskEntity.getErased());
             taskDao.merge(taskEntity);
+
+            // Create a new Task DTO
+            Task task = taskBean.convertTaskEntityToTaskDto(taskEntity);
+
+            // Convert the Task DTO to a JSON string
+            String taskJson;
+            try {
+                if (task != null) {
+                    taskJson = objectMapper.writeValueAsString(task);
+                } else {
+                    throw new RuntimeException("Task is null");
+                }
+            } catch (Exception e) {
+                throw new RuntimeException("Error converting task to JSON", e);
+            }
+
+            notifier.sendToAllExcept(taskJson, token);
+
             swithedErased = true;
         }
         return swithedErased;
     }
 
-    public boolean permanentlyDeleteTask(String id) {
+    public boolean permanentlyDeleteTask(String token, String id) {
         boolean removed = false;
         TaskEntity taskEntity = taskDao.findTaskById(id);
         if (taskEntity != null && !taskEntity.getErased()) {
@@ -189,6 +273,25 @@ public class TaskBean implements Serializable {
             removed = true;
         } else if (taskEntity != null && taskEntity.getErased()) {
             taskDao.deleteTask(id);
+
+            // Create a new Task DTO
+            Task task = new Task();
+            task.setId(id);
+            task.setDeleteThis(true);
+
+            // Convert the Task DTO to a JSON string
+            String taskJson;
+            try {
+                if (task != null) {
+                    taskJson = objectMapper.writeValueAsString(task);
+                } else {
+                    throw new RuntimeException("Task is null");
+                }
+            } catch (Exception e) {
+                throw new RuntimeException("Error converting task to JSON", e);
+            }
+
+            notifier.sendToAllExcept(taskJson, token);
             removed = true;
         }
         return removed;

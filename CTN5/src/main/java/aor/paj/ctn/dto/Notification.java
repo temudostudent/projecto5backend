@@ -23,6 +23,10 @@ public class Notification {
     public static final int MESSAGE = 10;
     @XmlElement
     public static final int TASK = 20;
+    @XmlElement
+    private static final String dtoType = "Notification";
+    @XmlElement
+    private Task task;
 
     public Notification() {
     }
@@ -81,5 +85,17 @@ public class Notification {
         } else if (type == TASK) {
             this.type = TASK;
         }
+    }
+
+    public String getDtoType() {
+        return dtoType;
+    }
+
+    public Task getTask() {
+        return task;
+    }
+
+    public void setTask(Task task) {
+        this.task = task;
     }
 }

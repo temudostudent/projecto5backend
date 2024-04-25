@@ -632,7 +632,7 @@ public class UserService {
             if (userBean.userIsTaskOwner(token, id) || userBean.userIsScrumMaster(token) || userBean.userIsProductOwner(token)) {
                 Task originalTask = taskBean.getTaskById(id);
                 if (originalTask!= null) {
-                    boolean updated = taskBean.updateTask(originalTask, updatedTask);
+                    boolean updated = taskBean.updateTask(token, originalTask, updatedTask);
                     if (updated)
                         response = Response.status(200).entity("Task updated successfully").build();
                     else {
@@ -658,7 +658,7 @@ public class UserService {
 
         Response response;
         if (userBean.isAuthenticated(token)) {
-            boolean updated = taskBean.updateTaskStatus(taskId, stateId);
+            boolean updated = taskBean.updateTaskStatus(token, taskId, stateId);
             if (updated) {
                 response = Response.status(200).entity("Task status updated successfully").build();
             } else {
@@ -682,7 +682,7 @@ public class UserService {
                     userBean.userIsProductOwner(token) ||
                     (userBean.userIsDeveloper(token) && taskBean.isTaskIdFromThisOwner(id, token))) {
                 try {
-                    boolean switched = taskBean.switchErasedTaskStatus(id);
+                    boolean switched = taskBean.switchErasedTaskStatus(token, id);
                     if (switched) {
                         response = Response.status(200).entity("Task erased status switched successfully").build();
                     } else {
@@ -736,7 +736,7 @@ public class UserService {
         if (userBean.isAuthenticated(token)) {
             if (userBean.userIsProductOwner(token)) {
                 try {
-                    boolean deleted = taskBean.permanentlyDeleteTask(id);
+                    boolean deleted = taskBean.permanentlyDeleteTask(token, id);
                     if (deleted) {
                         response = Response.status(200).entity("Task removed successfully").build();
                     } else {
