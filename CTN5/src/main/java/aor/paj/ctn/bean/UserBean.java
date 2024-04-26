@@ -937,4 +937,12 @@ public class UserBean implements Serializable {
         return false;
     }
 
+    public boolean isUsernamePending(String username){
+        AuthenticationLogEntity al = authenticationLogDao.findALByUser(username);
+        if(al!=null){
+            return true;
+        }
+        return false;
+    }
+
 }

@@ -24,9 +24,9 @@ public class AuthenticationLogDao extends AbstractDao<AuthenticationLogEntity> {
         }
     }
 
-    public AuthenticationLogEntity findALByUser(UserEntity user) {
+    public AuthenticationLogEntity findALByUser(String username) {
         try {
-            return (AuthenticationLogEntity) em.createNamedQuery("AuthenticationLog.findALByUser").setParameter("user", user)
+            return (AuthenticationLogEntity) em.createNamedQuery("AuthenticationLog.findALByUser").setParameter("username", username)
                     .getSingleResult();
 
         } catch (NoResultException e) {

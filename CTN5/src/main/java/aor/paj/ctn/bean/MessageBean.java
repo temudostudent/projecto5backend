@@ -3,12 +3,10 @@ package aor.paj.ctn.bean;
 import aor.paj.ctn.dao.MessageDao;
 import aor.paj.ctn.dao.UserDao;
 import aor.paj.ctn.dto.Message;
-import aor.paj.ctn.dto.Notification;
 import aor.paj.ctn.dto.User;
 import aor.paj.ctn.entity.MessageEntity;
 import aor.paj.ctn.entity.UserEntity;
 import aor.paj.ctn.websocket.ChatEndpoint;
-import aor.paj.ctn.websocket.Notifier;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
@@ -17,7 +15,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,7 +22,7 @@ import java.util.stream.Collectors;
 @Stateless
 public class MessageBean {
 
-    private static final Logger logger = LogManager.getLogger(EmailService.class);
+    private static final Logger logger = LogManager.getLogger(MessageBean.class);
     @EJB
     private MessageDao messageDao;
     @EJB

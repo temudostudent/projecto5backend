@@ -4,25 +4,38 @@ import aor.paj.ctn.bean.NotificationBean;
 import aor.paj.ctn.bean.UserBean;
 import aor.paj.ctn.dto.Notification;
 import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Path("/notification")
 public class NotificationService {
 
+    private static final Logger logger = LogManager.getLogger(NotificationService.class);
     @Inject
     NotificationBean notificationBean;
     @Inject
     UserBean userBean;
+    @Context
+    private HttpServletRequest request;
+
 
     @GET
     @Path("")
     @Produces(MediaType.APPLICATION_JSON)
     public Response receive(@HeaderParam("token") String token,
                             @QueryParam("readed") Boolean status) {
+
+        String ip = request.getRemoteAddr();
+        LocalDateTime now = LocalDateTime.now();
+        logger.info("Received request to get notifications from IP: " + ip + ", at: " + now);
 
         boolean auth = userBean.isAuthenticated(token);
         String username = userBean.convertEntityByToken(token).getUsername();
@@ -54,6 +67,10 @@ public class NotificationService {
     public Response getAllUserNotifications(@HeaderParam("token") String token,
                             @PathParam("username") String username) {
 
+        String ip = request.getRemoteAddr();
+        LocalDateTime now = LocalDateTime.now();
+        logger.info("Received request to get all notifications for user: " + username + ", from IP: " + ip + ", at: " + now);
+
         boolean auth = userBean.isAuthenticated(token);
         String usernameToken = userBean.convertEntityByToken(token).getUsername();
         Response response = null;
@@ -76,6 +93,10 @@ public class NotificationService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getLatestUserNotifications(@HeaderParam("token") String token,
                                             @PathParam("username") String username) {
+
+        String ip = request.getRemoteAddr();
+        LocalDateTime now = LocalDateTime.now();
+        logger.info("Received request to get latest notifications for user: " + username + ", from IP: " + ip + ", at: " + now);
 
         boolean auth = userBean.isAuthenticated(token);
         String usernameToken = userBean.convertEntityByToken(token).getUsername();
@@ -101,6 +122,10 @@ public class NotificationService {
                                                @PathParam("username") String username,
                                                      @QueryParam("type") int type) {
 
+        String ip = request.getRemoteAddr();
+        LocalDateTime now = LocalDateTime.now();
+        logger.info("Received request to get latest notifications by type for user: " + username + ", from IP: " + ip + ", at: " + now);
+
         boolean auth = userBean.isAuthenticated(token);
         String usernameToken = userBean.convertEntityByToken(token).getUsername();
         Response response = null;
@@ -122,6 +147,11 @@ public class NotificationService {
     @Path("/read")
     @Produces(MediaType.APPLICATION_JSON)
     public Response markAllAsRead(@HeaderParam("token") String token) {
+
+        String ip = request.getRemoteAddr();
+        LocalDateTime now = LocalDateTime.now();
+        logger.info("Received request to mark all notifications as read from IP: " + ip + ", at: " + now);
+
         boolean auth = userBean.isAuthenticated(token);
         String username = userBean.convertEntityByToken(token).getUsername();
         Response response = null;
@@ -142,6 +172,11 @@ public class NotificationService {
                                                       @PathParam("senderUsername") String senderUsername,
                                                       @PathParam("receiverUsername") String receiverUsername,
                                                       @QueryParam("type") int type){
+
+        String ip = request.getRemoteAddr();
+        LocalDateTime now = LocalDateTime.now();
+        logger.info("Received request to mark all notifications from sender: " + senderUsername + " to receiver: " + receiverUsername + " as read from IP: " + ip + ", at: " + now);
+
         boolean auth = userBean.isAuthenticated(token);
         Response response = null;
 

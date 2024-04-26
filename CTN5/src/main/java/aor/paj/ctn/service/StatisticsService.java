@@ -9,15 +9,21 @@ import aor.paj.ctn.dto.OverallStatistics;
 import aor.paj.ctn.dto.User;
 import aor.paj.ctn.dto.UserStatistics;
 import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Path("/statistics")
 public class StatisticsService {
 
+    private static final Logger logger = LogManager.getLogger(StatisticsService.class);
     @Inject
     UserBean userBean;
     @Inject
@@ -26,12 +32,19 @@ public class StatisticsService {
     CategoryBean categoryBean;
     @Inject
     NotificationBean notificationBean;
+    @Context
+    private HttpServletRequest request;
 
     @GET
     @Path("/users")
     @Produces(MediaType.APPLICATION_JSON)
     public Response countUsers(@HeaderParam("token") String token,
                              @QueryParam("type") Integer typeOfUser){
+
+        String ip = request.getRemoteAddr();
+        LocalDateTime now = LocalDateTime.now();
+        logger.info("Received request to receive users statistics from IP: " + ip + ", at: " + now);
+
         Response response;
 
         if (!userBean.isAuthenticated(token)) {
@@ -60,6 +73,11 @@ public class StatisticsService {
     public Response countTasks(@HeaderParam("token") String token,
                              @QueryParam("username") String username,
                              @QueryParam("state") Integer stateId) {
+
+        String ip = request.getRemoteAddr();
+        LocalDateTime now = LocalDateTime.now();
+        logger.info("Received request to receive tasks statistics from IP: " + ip + ", at: " + now);
+
         Response response;
 
         if (!userBean.isAuthenticated(token)) {
@@ -85,6 +103,11 @@ public class StatisticsService {
     @Path("/notifications/unreaded")
     @Produces(MediaType.APPLICATION_JSON)
     public Response countUnreadNotifications(@HeaderParam("token") String token){
+
+        String ip = request.getRemoteAddr();
+        LocalDateTime now = LocalDateTime.now();
+        logger.info("Received request to count unread notifications from IP: " + ip + ", at: " + now);
+
         Response response;
 
         if (!userBean.isAuthenticated(token)) {
@@ -104,6 +127,10 @@ public class StatisticsService {
     @Path("/categories")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllCategories(@HeaderParam("token") String token) {
+
+        String ip = request.getRemoteAddr();
+        LocalDateTime now = LocalDateTime.now();
+        logger.info("Received request to get all categories from IP: " + ip + ", at: " + now);
 
         Response response;
 
