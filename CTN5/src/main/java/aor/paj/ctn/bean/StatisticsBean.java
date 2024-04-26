@@ -22,6 +22,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 @Stateless
 public class StatisticsBean implements Serializable {
@@ -114,14 +115,13 @@ public class StatisticsBean implements Serializable {
     private void addUserCountByDayToStatistics(OverallStatistics s) {
         List<Object[]> userCountsByDay = userDao.countUsersByDay();
 
-        Map<String, Integer> usersByDay = new HashMap<>();
+        Map<String, Integer> usersByDay = new TreeMap<>(); // Changed to TreeMap
 
         for (Object[] result : userCountsByDay) {
             if (result[0] != null && result[1] != null) {
                 Timestamp timestamp = (Timestamp) result[0];
                 Date date = new Date(timestamp.getTime());
-                System.out.println(result[0] + " " + result[1]);
-                Long count = (Long) result[1]; // Change this line
+                Long count = (Long) result[1];
 
                 String dateString = new SimpleDateFormat("yyyy-MM-dd").format(date);
 
@@ -137,7 +137,7 @@ public class StatisticsBean implements Serializable {
         }
 
         // Convert the map values to string
-        Map<String, String> usersByDayStr = new HashMap<>();
+        Map<String, String> usersByDayStr = new TreeMap<>();
         for (Map.Entry<String, Integer> entry : usersByDay.entrySet()) {
             usersByDayStr.put(entry.getKey(), String.valueOf(entry.getValue()));
         }
@@ -239,7 +239,7 @@ public class StatisticsBean implements Serializable {
     private void updateTasksDoneByTime(OverallStatistics s) {
         List<Object[]> taskData = taskDao.countTasksByConclusionDate();
 
-        Map<String, String> tasksDoneByTime = new HashMap<>();
+        Map<String, String> tasksDoneByTime = new TreeMap<>();
         long runningTotal = 0;
 
         for (Object[] data : taskData) {

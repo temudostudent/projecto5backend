@@ -70,6 +70,16 @@ public class EmailService {
         sendEmail("cesardev00@gmail.com", subject, body);
     }
 
+    public void sendAskJoinAccountEmail(String toEmail) throws MessagingException {
+        String subject = "Agileflow Join Request";
+        String body = "GOOD NEWS!!! ,<br><br>" +
+                toEmail + " wants to join Agileflow community!<br><br>" +
+                "Please register the new user and we're officially friends.<br><br>";
+
+        //sendEmail(toEmail, subject, body);
+        sendEmail("cesardev00@gmail.com", subject, body);
+    }
+
 
     public void sendEmail(String to, String subject, String body) {
 

@@ -18,6 +18,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,7 +38,7 @@ public class MessageBean {
     @Inject
     ObjectMapper objectMapper;
 
-    public void sendMessage(Message message, String token, User receiver) {
+    public Long sendMessage(Message message, String token, User receiver) {
         User sender = userBean.convertEntityByToken(token);
         if (sender == null) {
             logger.error("Non existent token tried to send a message");
@@ -73,7 +74,7 @@ public class MessageBean {
                 throw new RuntimeException("Error converting Message to JSON", e);
             }
 
-            chatEndpoint.sendMessage(receiverToken, messageJson);
+            chatEndpoint.onMessage(messageJson, token, receiver.getUsername());
             messageEntity.setReadStatus(true);
             messageEntity.setReadTimestamp(LocalDateTime.now());
         } else {
@@ -81,6 +82,7 @@ public class MessageBean {
 
         }
         messageDao.persist(messageEntity);
+        return messageEntity.getId(); // return the ID of the persisted message entity
     }
 
     public List<Message> getMessages(String receiver) {
@@ -109,13 +111,36 @@ public class MessageBean {
                     .map(this::convertToDto)
                     .collect(Collectors.toList());
         }
+    }
 
+    public List<Message> getLastUnreadMessagesBetweenTwoUsers(String username1, String username2) {
+        UserEntity user1 = userDao.findUserByUsername(username1);
+        UserEntity user2 = userDao.findUserByUsername(username2);
+        List<Message> lastMessages= new ArrayList<>();
+
+        if (user1 == null || user2 == null) {
+            logger.error("Non existent user tried to get messages between two users");
+            throw new RuntimeException("Invalid user");
+        } else if (user1.equals(user2)) {
+            logger.error("User tried to get messages between himself");
+            throw new RuntimeException("Invalid user");
+        } else {
+            List<MessageEntity> messages = messageDao.findMessagesBetweenTwoUsers(user1, user2);
+            for (MessageEntity message : messages) {
+                if (!message.isReadStatus()) {
+                    lastMessages.add(convertToDto(message));
+                }
+            }
+        }
+        return lastMessages;
     }
 
     public void setAllMessagesFromConversationRead(String authenticatedUsername, String username1, String username2) {
         UserEntity authenticatedUser = userDao.findUserByUsername(authenticatedUsername);
         UserEntity user1 = userDao.findUserByUsername(username1);
         UserEntity user2 = userDao.findUserByUsername(username2);
+
+        String senderToken = userBean.findTokenByUsername(username2);
 
         if (authenticatedUser == null || user1 == null || user2 == null) {
             logger.error("Non existent user tried to set messages as read");
@@ -130,6 +155,28 @@ public class MessageBean {
                     message.setReadStatus(true);
                     message.setReadTimestamp(LocalDateTime.now());
                     messageDao.merge(message);
+
+                    // Check if the receiver's WebSocket session is open before sending the notification
+                    if (senderToken != null && chatEndpoint.isSessionOpen(senderToken)) {
+                        // Create a new Message DTO
+                        Message messageInst = new Message();
+                        messageInst.setId(message.getId().toString());
+                        messageInst.setReadNow(true);
+
+                        // Convert the Message DTO to a JSON string
+                        String messageJson;
+                        try {
+                            if (messageInst != null) {
+                                messageJson = objectMapper.writeValueAsString(messageInst);
+                            } else {
+                                throw new RuntimeException("Message is null");
+                            }
+                        } catch (Exception e) {
+                            throw new RuntimeException("Error converting Message to JSON", e);
+                        }
+
+                        chatEndpoint.sendMessage(senderToken, messageJson);
+                    }
                 }
             }
         }

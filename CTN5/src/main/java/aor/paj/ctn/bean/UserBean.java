@@ -129,9 +129,6 @@ public class UserBean implements Serializable {
     //Faz o registo pendente do utilizador, adiciona à base de dados
     public boolean registerPending(User user) {
 
-        System.out.println(user);
-        System.out.println(user.getTypeOfUser());
-
         if (user != null) {
 
             user.setVisible(false);
@@ -158,6 +155,19 @@ public class UserBean implements Serializable {
             authenticationLogDao.persist(a);
 
             sendConfirmAccountEmail(user.getEmail(), confirmURL);
+
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    //Pedido recebido para se juntar à aplicação
+    public boolean askToJoin(String email) {
+
+        if (email != null) {
+
+            sendAskJoinAccountEmail(email);
 
             return true;
         } else {
@@ -233,6 +243,22 @@ public class UserBean implements Serializable {
         } else {
             System.out.println(userEmail + " not registed and want to reset the password");
             logger.warn(userEmail + " not registed and want to reset the password");
+        }
+    }
+
+    private void sendAskJoinAccountEmail(String email) {
+        // Verifica se o e-mail existe na base de dados
+        UserEntity userEntity = userDao.findUserByEmail(email);
+        if (userEntity == null) {
+
+            // Enviar e-mail para o admin
+            try {
+                emailService.sendAskJoinAccountEmail(email);
+            } catch (MessagingException e) {
+                logger.error(e);
+            }
+        } else {
+            logger.warn(email + " registed and want to ask to join again");
         }
     }
 

@@ -52,12 +52,13 @@ public class NotificationDao extends AbstractDao<NotificationEntity>{
         }
     }
 
-    public ArrayList<NotificationEntity> findNotificationsBySenderAndReceiver(Boolean readStatus, String senderUsername, String receiverUsername) {
+    public ArrayList<NotificationEntity> findNotificationsBySenderAndReceiverAndType(Boolean readStatus, String senderUsername, String receiverUsername, int type) {
         try {
-            return (ArrayList<NotificationEntity>) em.createNamedQuery("Notification.findNotificationsBySenderAndReceiver")
+            return (ArrayList<NotificationEntity>) em.createNamedQuery("Notification.findNotificationsBySenderAndReceiverAndType")
                     .setParameter("readStatus", readStatus)
                     .setParameter("senderUsername", senderUsername)
                     .setParameter("receiverUsername", receiverUsername)
+                    .setParameter("type", type)
                     .getResultList();
 
         } catch (Exception e) {

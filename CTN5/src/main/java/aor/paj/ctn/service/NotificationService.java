@@ -136,14 +136,17 @@ public class NotificationService {
     }
 
     @PUT
-    @Path("/read/{senderUsername}/{receiverUsername}")
+    @Path("/read/{senderUsername}/{receiverUsername}/")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response markAllFromSenderToReceiverAsRead(@HeaderParam("token") String token, @PathParam("senderUsername") String senderUsername, @PathParam("receiverUsername") String receiverUsername) {
+    public Response markAllFromSenderToReceiverAsRead(@HeaderParam("token") String token,
+                                                      @PathParam("senderUsername") String senderUsername,
+                                                      @PathParam("receiverUsername") String receiverUsername,
+                                                      @QueryParam("type") int type){
         boolean auth = userBean.isAuthenticated(token);
         Response response = null;
 
         if (auth) {
-            notificationBean.setNotificationsFromSenderToReceiverReaded(senderUsername, receiverUsername);
+            notificationBean.setNotificationsFromSenderToReceiverReaded(senderUsername, receiverUsername, type);
             response = Response.status(200).entity("All notifications from sender to receiver marked as read").build();
         } else {
             response = Response.status(401).entity("Invalid credentials").build();

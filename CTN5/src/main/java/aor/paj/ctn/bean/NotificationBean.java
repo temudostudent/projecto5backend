@@ -156,9 +156,10 @@ public class NotificationBean {
         }
     }
 
-    public void setNotificationsFromSenderToReceiverReaded(String senderUsername, String receiverUsername) {
-        List<NotificationEntity> unreadNotifications = notificationDao.findNotificationsBySenderAndReceiver(false, senderUsername, receiverUsername);
+    public void setNotificationsFromSenderToReceiverReaded(String senderUsername, String receiverUsername, int type) {
+        List<NotificationEntity> unreadNotifications = notificationDao.findNotificationsBySenderAndReceiverAndType(false, senderUsername, receiverUsername, type);
         for (NotificationEntity notification : unreadNotifications) {
+            System.out.println(notification.getSender().getUsername() + " " + notification.getRecipient().getUsername() + " " + notification.getType());
             notification.setReadStatus(true);
             notification.setReadTimestamp(LocalDateTime.now());
             notificationDao.merge(notification);

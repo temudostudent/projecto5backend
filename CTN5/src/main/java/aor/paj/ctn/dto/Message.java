@@ -19,6 +19,8 @@ public class Message {
     private boolean readStatus;
     @XmlElement
     private LocalDateTime timestamp;
+    @XmlElement
+    private boolean isReadNow;
 
     public Message() {
     }
@@ -74,4 +76,14 @@ public class Message {
     public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
     }
+
+    public boolean isReadNow() {
+        return isReadNow;
+    }
+
+    public void setReadNow(boolean readNow) {
+        isReadNow = readNow;
+    }
+
+
 }

@@ -22,7 +22,7 @@ import java.time.LocalDate;
 @NamedQuery(name="Task.countTasksByState", query = "SELECT COUNT(t) FROM TaskEntity t WHERE t.stateId = :stateId")
 @NamedQuery(name="Task.countAllTasksFromUserByState", query = "SELECT COUNT(t) FROM TaskEntity t WHERE t.owner = :owner AND t.stateId = :stateId")
 @NamedQuery(name="Task.fetchStartAndConclusionDates", query="SELECT t.startDate, t.conclusionDate FROM TaskEntity t WHERE t.conclusionDate IS NOT NULL")
-@NamedQuery(name="Task.countTasksByConclusionDate", query = "SELECT t.conclusionDate, COUNT(t) FROM TaskEntity t WHERE t.conclusionDate IS NOT NULL GROUP BY t.conclusionDate")
+@NamedQuery(name="Task.countTasksByConclusionDate", query = "SELECT t.conclusionDate, COUNT(t) FROM TaskEntity t WHERE t.conclusionDate IS NOT NULL GROUP BY t.conclusionDate ORDER BY t.conclusionDate ASC")
 public class TaskEntity implements Serializable{
 
     private static final long serialVersionUID = 1L;

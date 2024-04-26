@@ -66,19 +66,6 @@ public class Notifier {
         }
     }
 
-    public void sendToAll(String msg) {
-        sessions.values().forEach(session -> {
-            if (session.isOpen()){
-
-                try {
-                    session.getBasicRemote().sendText(msg);
-                } catch (IOException e) {
-                    System.out.println("Something went wrong!");
-                }
-            }
-        });
-    }
-
     public void sendToAllExcept(String msg, String token) {
         System.out.println("Sending to all except: " + token);
         Session excludedSession = sessions.get(token);

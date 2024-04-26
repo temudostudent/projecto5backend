@@ -121,6 +121,26 @@ public class UserService {
     }
 
     @POST
+    @Path("/application-membership")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response applicationMembership(@HeaderParam("email") String email) {
+        try {
+            if (email == null || email.isEmpty()) {
+                return Response.status(Response.Status.BAD_REQUEST).entity("Email header is missing").build();
+            }
+            // Chama o método no UserBean para enviar o e-mail para admin
+            userBean.askToJoin(email);
+
+            // Retorna uma resposta de sucesso
+            return Response.status(Response.Status.OK).entity("E-mail send to admin").build();
+        } catch (Exception e) {
+            // Se houver algum erro, retorna uma resposta de erro
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("error").build();
+        }
+    }
+
+    @POST
     @Path("/forgot-password")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
