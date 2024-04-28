@@ -23,7 +23,7 @@ public class SessionManager {
     @Inject
     public SessionManager(UserBean userBean) {
         this.userActivity = new ConcurrentHashMap<>();
-        this.timeout = 7200000; // 2 hours in milliseconds
+        this.timeout = 3600000; // 1 hour in milliseconds
         this.userBean = userBean;
         this.executorService = Executors.newSingleThreadScheduledExecutor();
         this.executorService.scheduleAtFixedRate(this::checkInactiveUsers, timeout, timeout, TimeUnit.MILLISECONDS);

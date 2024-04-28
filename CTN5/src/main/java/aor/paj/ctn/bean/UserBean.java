@@ -301,20 +301,16 @@ public class UserBean implements Serializable {
                 // Token expirou, limpa os campos de token e expiração
                 alEntity.setConfirmToken(null);
                 alEntity.setConfirmTokenExpiry(null);
+
+                //Delete ????
+
+
                 return false;
             }
         } else {
             // Linha não encontrada
             return false;
         }
-
-        /*boolean validToken = false;
-        UserEntity user = userDao.findUserByConfirmToken(token);
-        if (user != null) {
-            validToken = true;
-        }
-
-        return validToken;*/
     }
 
 
@@ -939,7 +935,7 @@ public class UserBean implements Serializable {
 
     public boolean isUsernamePending(String username){
         AuthenticationLogEntity al = authenticationLogDao.findALByUser(username);
-        if(al!=null){
+        if(al!=null && !al.isAuthenticated()){
             return true;
         }
         return false;
