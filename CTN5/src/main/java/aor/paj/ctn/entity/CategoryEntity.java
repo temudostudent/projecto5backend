@@ -7,7 +7,7 @@ import java.util.Set;
 
 @Entity
 @Table(name="category")
-@NamedQuery(name="Category.findTasksByCategory", query="SELECT t FROM CategoryEntity c JOIN c.taskList t WHERE c.name = :name")
+@NamedQuery(name="Category.findTasksByCategory", query="SELECT t FROM CategoryEntity c JOIN c.taskList t WHERE c.name = :name ORDER BY t.priority DESC, t.startDate ASC, t.limitDate ASC")
 @NamedQuery(name="Category.findCategories", query="SELECT c FROM CategoryEntity c")
 @NamedQuery(name="Category.findCategoryByName", query="SELECT c FROM CategoryEntity c WHERE c.name = :name")
 @NamedQuery(name="Category.findCategoryById", query="SELECT c FROM CategoryEntity c WHERE c.id = :id")

@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @NamedQuery(name="Task.findTasksByCategoryID", query="SELECT a FROM TaskEntity a WHERE a.category.id = :categoryId")
 @NamedQuery(name="Task.findErasedTasks", query="SELECT a FROM TaskEntity a WHERE a.erased = true")
 @NamedQuery(name="Task.findActiveTasks", query="SELECT a FROM TaskEntity a WHERE a.erased = false")
-@NamedQuery(name="Task.findTasksByErasedStatus", query="SELECT a FROM TaskEntity a WHERE a.erased = :erased")
+@NamedQuery(name="Task.findTasksByErasedStatus", query="SELECT a FROM TaskEntity a WHERE a.erased = :erased ORDER BY a.priority DESC, a.startDate ASC, a.limitDate ASC")
 @NamedQuery(name="Task.findAllTasks", query="SELECT a FROM TaskEntity a")
 @NamedQuery(name="DeleteTask", query="DELETE FROM TaskEntity a WHERE a.id = :id")
 @NamedQuery(name="Task.countAllTasks", query = "SELECT COUNT(*) FROM TaskEntity t")
